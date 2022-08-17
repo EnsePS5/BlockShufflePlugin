@@ -1,0 +1,6 @@
+name: BlockShufflePlugin
+version: '${project.version}'
+main: me.exaraton.citioxs.blockshuffleplugin.BlockShufflePlugin
+api-version: 1.18
+authors: [ citioxs ]
+description: Custom versus plugin with goal to obtain certain block in given amount of time
