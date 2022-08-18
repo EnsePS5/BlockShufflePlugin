@@ -8,3 +8,6 @@ commands:
   runBS:
     description: runs BlockShuffle with default settigs
     usage: /<command>
+  FBP_plugin_commands:
+    description: shows available commands to player
+    usage: /<command>
