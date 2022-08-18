@@ -4,13 +4,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
@@ -18,8 +18,7 @@ import java.util.*;
 public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
     private final ArrayList<Material> allPossibleItems = new ArrayList<>();
-    private ArrayList<Item> items = new ArrayList<>();
-    private Map<Player, Material> playersGoals = new HashMap<Player, Material>();
+    private final Map<Player, Material> playersGoals = new HashMap<>();
     ArrayList<Player> currentPlayers = new ArrayList<>();
     Map<Player, Boolean> isDone = new HashMap<>();
 
@@ -30,9 +29,16 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
         System.out.println("Initializing " + BlockShufflePlugin.class.getName());
 
-        allPossibleItems.addAll(Arrays.asList(Material.values()));
+        //TODO MAKE TIER LISTS
+        for (Material material : Material.values()){
+            if (material.isItem() || (material.isBlock() && !material.isAir()))
+            allPossibleItems.add(material);
+        }
+
+        System.out.println("added Items : \n" + allPossibleItems);
 
         getServer().getPluginManager().registerEvents(this,this);
+        Objects.requireNonNull(this.getCommand("runBS")).setExecutor(new CommandRunBS(this));
     }
 
     @Override
@@ -57,7 +63,7 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
     public void pickUpItem(PlayerPickupItemEvent playerPickupItemEvent){
 
         System.out.println("Picked up Item by: ");
-        Item item = playerPickupItemEvent.getItem();
+        ItemStack item = playerPickupItemEvent.getItem().getItemStack();
 
         if (!currentPlayers.isEmpty()){
 
@@ -65,10 +71,10 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
                 System.out.println(player.getDisplayName());
 
-                if (playersGoals.get(player) == item.getItemStack().getType() && !isDone.get(player)){
+                if (playersGoals.get(player) == item.getType() && !isDone.get(player)){
                     isDone.put(player,true);
 
-                    Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + player.getDisplayName() + " OBTAINED " + item.getName() + " !");
+                    Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + player.getDisplayName() + " OBTAINED " + item.getType() + " !");
 
                     for (Player player1 : currentPlayers) {
                         player1.playSound(player1.getLocation(), Sound.ITEM_TOTEM_USE, 0.5f, 0.5f);
@@ -82,22 +88,14 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                 if (isDone.get(player))
                     countOfDone++;
             }
+            System.out.println("Curr players -> " + currentPlayers.size() + " | count of done -> " + countOfDone);
             if (currentPlayers.size() == countOfDone){
-
-                currentPlayers.clear();
-                isDone.clear();
-                playersGoals.clear();
-                RandomItem(currentPlayers,allPossibleItems,playersGoals,isDone);
+                this.playViaCommand();
             }
         }
     }
 
-    @EventHandler
-    public void playViaCommand(PlayerCommandPreprocessEvent preprocessEvent){
-
-
-        //TODO Implement CommmandKit -> spigot.org
-        if (preprocessEvent.getMessage().equals("/runBS")) {
+    public void playViaCommand(){
 
             if (!currentPlayers.isEmpty())
                 currentPlayers.clear();
@@ -109,8 +107,6 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
             isDone = new HashMap<>();
 
             RandomItem(currentPlayers,allPossibleItems,playersGoals,isDone);
-
-        }
 
     }
 
