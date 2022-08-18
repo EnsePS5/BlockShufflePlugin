@@ -4,12 +4,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -57,17 +56,23 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
     @EventHandler
     public void pickUpItem(PlayerPickupItemEvent playerPickupItemEvent){
 
+        System.out.println("Picked up Item by: ");
         Item item = playerPickupItemEvent.getItem();
 
         if (!currentPlayers.isEmpty()){
 
             for (Player player : currentPlayers){
 
+                System.out.println(player.getDisplayName());
+
                 if (playersGoals.get(player) == item.getItemStack().getType() && !isDone.get(player)){
                     isDone.put(player,true);
 
-                    player.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + player.getDisplayName() + " OBTAINED " + item + " !");
-                    player.playSound(player.getLocation(), Sound.ITEM_TOTEM_USE, 0.5f, 0.5f);
+                    Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + player.getDisplayName() + " OBTAINED " + item.getName() + " !");
+
+                    for (Player player1 : currentPlayers) {
+                        player1.playSound(player1.getLocation(), Sound.ITEM_TOTEM_USE, 0.5f, 0.5f);
+                    }
                 }
             }
 
@@ -79,20 +84,29 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
             }
             if (currentPlayers.size() == countOfDone){
 
-                RandomItem(currentPlayers,allPossibleItems,playersGoals,isDone);
                 currentPlayers.clear();
                 isDone.clear();
                 playersGoals.clear();
+                RandomItem(currentPlayers,allPossibleItems,playersGoals,isDone);
             }
         }
     }
 
-    public void onCommand(CommandSender commandSender, Command command){
+    @EventHandler
+    public void playViaCommand(PlayerCommandPreprocessEvent preprocessEvent){
 
-        if (command.getName().equalsIgnoreCase("runblockshuffle")) {
+
+        //TODO Implement CommmandKit -> spigot.org
+        if (preprocessEvent.getMessage().equals("/runBS")) {
+
+            if (!currentPlayers.isEmpty())
+                currentPlayers.clear();
+
+            if (!playersGoals.isEmpty())
+                playersGoals.clear();
 
             currentPlayers.addAll(getServer().getOnlinePlayers());
-            isDone = new HashMap<Player, Boolean>();
+            isDone = new HashMap<>();
 
             RandomItem(currentPlayers,allPossibleItems,playersGoals,isDone);
 
@@ -109,12 +123,12 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
             do {
                 goal = allPossibleItems.get((int)(Math.random() * allPossibleItems.size()));
             }
-            while (!goal.isBlock());
+            while (goal.isBlock() && goal.isSolid());
 
             playersGoals.put(player,goal);
             isDone.put(player, false);
 
-            player.sendMessage(ChatColor.DARK_RED + "Item to obtain is -> " + playersGoals.get(player).getData().getName());
+            player.sendMessage(ChatColor.DARK_RED + "Item to obtain is -> " + playersGoals.get(player));
 
         }
     }
