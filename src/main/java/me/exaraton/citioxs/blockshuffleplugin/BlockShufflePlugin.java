@@ -12,29 +12,41 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scoreboard.*;
 
 import java.util.*;
 
 public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
     public final ArrayList<List<Material>> allPossibleItems = new ArrayList<>();
+
+    //PLAYERS VARIABLES
     public final Map<Player, Material> playersGoals = new HashMap<>();
     public final Map<Player, Integer> playersPoints = new HashMap<>();
+    public final Map<Player, Score> playersScore = new HashMap<>();
+
     public ArrayList<Player> currentPlayers = new ArrayList<>();
+
+    //SCOREBOARD
+    public ScoreboardManager scoreboardManager;
+    public Scoreboard scoreboard;
+    public Objective objective;
 
     private Map<Player, Boolean> isDone = new HashMap<>();
 
     public me.exaraton.citioxs.blockshuffleplugin.tasks.TimerTask timerTask;
 
     public static int COMPLETED_ROUNDS = 0;
-
     private static int GIVEN_POINTS_BASED_ON_OBTAINING = 0;
 
+    private static boolean HAS_GAME_ENDED = false;
 
 
 
-    public static void RESET_COMPLETED_ROUNDS(){
+
+    public static void RESET_ROUNDS_STATS(){
         COMPLETED_ROUNDS = 0;
+
     }
 
     @Override
@@ -94,11 +106,17 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
         allPossibleItems.add(tierII);
         allPossibleItems.add(tierIII);
 
+        //REJERSTRACJA KOMEND I EVENTOW
         getServer().getPluginManager().registerEvents(this,this);
         Objects.requireNonNull(this.getCommand("runBS")).setExecutor(new CommandRunBS(this));
         System.out.println("Added runBS");
         Objects.requireNonNull(this.getCommand("FBP_plugin_commands")).setExecutor(new CommandFBP_plugin_commands(this));
         System.out.println("Added FBP");
+
+        //SCOREBOARD
+
+        scoreboardManager = Bukkit.getScoreboardManager();
+
     }
 
     @Override
@@ -145,11 +163,13 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                     Bukkit.broadcastMessage(ChatColor.GOLD + "" + ChatColor.BOLD + player.getDisplayName().toUpperCase(Locale.ROOT) +
                             " OBTAINED " + playersGoals.get(player) + " AND SCORED " + GIVEN_POINTS_BASED_ON_OBTAINING + " POINTS !");
 
-                    player.spawnParticle(Particle.TOTEM,player.getLocation(),5);
+                    player.spawnParticle(Particle.TOTEM,player.getLocation(),150);
                     player.sendTitle(ChatColor.GOLD + "" + ChatColor.BOLD + "ITEM OBTAINED", "+" +
                             GIVEN_POINTS_BASED_ON_OBTAINING + " point(s)",5,60,15);
-
+                    //TODO UPDATE SCORE COLORS?
                     playersPoints.put(player, playersPoints.get(player) + GIVEN_POINTS_BASED_ON_OBTAINING);
+                    playersScore.get(player).setScore(playersScore.get(player).getScore() + GIVEN_POINTS_BASED_ON_OBTAINING);
+
                     GIVEN_POINTS_BASED_ON_OBTAINING--;
 
                     for (Player player1 : currentPlayers) {
@@ -165,7 +185,7 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                     countOfDone++;
             }
             System.out.println("Curr players -> " + currentPlayers.size() + " | count of done -> " + countOfDone);
-            if (currentPlayers.size() == countOfDone){
+            if (currentPlayers.size() == countOfDone && !HAS_GAME_ENDED){
 
                 COMPLETED_ROUNDS++;
 
@@ -182,10 +202,63 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
     public void playViaCommand(){
 
-        if (COMPLETED_ROUNDS == 7){
-            //TODO SHOW GAINED POINTS AND FINISH GAME
-            RESET_COMPLETED_ROUNDS();
-            return;
+        if (COMPLETED_ROUNDS == 7){//END CONDITIONS
+
+            Player firstPlayer = null;
+            int currentMax = 0;
+            for (Player player : currentPlayers){
+                if (playersPoints.get(player) > currentMax) {
+                    currentMax = playersPoints.get(player);
+                    firstPlayer = player;
+                }
+            }
+
+            if (firstPlayer != null) {
+                for (Player player : currentPlayers) {
+                    player.sendTitle(ChatColor.GOLD + firstPlayer.getDisplayName() + " WINS!", "Congratulations!", 5, 80, 15);
+                }
+
+                firstPlayer.playSound(firstPlayer.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 1, 1);
+                firstPlayer.playSound(firstPlayer.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE,.5f,.5f);
+
+                Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.ITALIC + "The BlockShuffle game has ended.");
+
+                RESET_ROUNDS_STATS();
+
+                HAS_GAME_ENDED = true;
+
+                return;
+            }
+        }
+
+        if (COMPLETED_ROUNDS == 6){
+
+            for (Player player : currentPlayers){
+                player.sendTitle(ChatColor.YELLOW + "STARTING LAST ROUND!", null, 5 ,40 ,15);
+            }
+            try {
+
+                Thread.sleep(3000);
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        if (COMPLETED_ROUNDS >= 0 && COMPLETED_ROUNDS <= 5){
+
+            for (Player player : currentPlayers){
+
+                player.sendTitle(ChatColor.YELLOW + "STARTING ROUND " + (COMPLETED_ROUNDS + 1) + "!", null, 5 ,40 ,15);
+                try {
+
+                    Thread.sleep(3000);
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
             if (!currentPlayers.isEmpty())
@@ -203,14 +276,29 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
             GIVEN_POINTS_BASED_ON_OBTAINING = currentPlayers.size();
 
+            //Scoreboard
+        if (COMPLETED_ROUNDS == 0){
+
+            scoreboard = scoreboardManager.getNewScoreboard();
+
+            objective = scoreboard.registerNewObjective("Points", "dummy", "Points");
+            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+            objective.setDisplayName(ChatColor.GOLD + "Points");
+
+            for (Player player : currentPlayers){
+                player.setScoreboard(scoreboard);
+                playersScore.put(player, objective.getScore(ChatColor.YELLOW + "Points: " + ChatColor.GOLD + "0"));
+                playersPoints.put(player,0);
+            }
+
+        }
+
         System.out.println(playersGoals);
     }
 
     private void RandomItemAssigning(){
 
         for (Player player : currentPlayers){
-
-            playersPoints.put(player,0);
 
             int goal_index = indexToChooseItemFrom();
             int randomMatIndex = (int)(Math.random() * allPossibleItems.get(goal_index).size());

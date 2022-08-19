@@ -20,7 +20,7 @@ public class CommandRunBS implements CommandExecutor{
         if (sender.isOp())
         {
             if (args.length == 0) {
-                BlockShufflePlugin.RESET_COMPLETED_ROUNDS();
+                BlockShufflePlugin.RESET_ROUNDS_STATS();
                 blockShufflePlugin.playViaCommand();
             }else if (args[0].equals("setTime") && Integer.parseInt(args[1]) >= 0){
                 blockShufflePlugin.timerTask.changeTime(Integer.parseInt(args[1]));
