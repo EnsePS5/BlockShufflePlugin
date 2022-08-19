@@ -17,7 +17,7 @@ public class CommandFBP_plugin_commands implements CommandExecutor {
     public CommandFBP_plugin_commands(BlockShufflePlugin blockShufflePlugin){
         this.blockShufflePlugin = blockShufflePlugin;
     }
-
+    //TODO POINTBOARD AND COMMAND
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 

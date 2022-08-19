@@ -3,11 +3,7 @@ package me.exaraton.citioxs.blockshuffleplugin;
 import me.exaraton.citioxs.blockshuffleplugin.commands.CommandFBP_plugin_commands;
 import me.exaraton.citioxs.blockshuffleplugin.commands.CommandRunBS;
 import me.exaraton.citioxs.blockshuffleplugin.tasks.TimerTask;
-import net.md_5.bungee.api.chat.ClickEvent;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -23,11 +19,19 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
     public final ArrayList<List<Material>> allPossibleItems = new ArrayList<>();
     public final Map<Player, Material> playersGoals = new HashMap<>();
+    public final Map<Player, Integer> playersPoints = new HashMap<>();
     public ArrayList<Player> currentPlayers = new ArrayList<>();
-    Map<Player, Boolean> isDone = new HashMap<>();
+
+    private Map<Player, Boolean> isDone = new HashMap<>();
+
     public me.exaraton.citioxs.blockshuffleplugin.tasks.TimerTask timerTask;
 
-    private static int COMPLETED_ROUNDS = 0;
+    public static int COMPLETED_ROUNDS = 0;
+
+    private static int GIVEN_POINTS_BASED_ON_OBTAINING = 0;
+
+
+
 
     public static void RESET_COMPLETED_ROUNDS(){
         COMPLETED_ROUNDS = 0;
@@ -138,7 +142,15 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                 if ((playersGoals.get(player) == item.getType() && !isDone.get(player))){
                     isDone.put(player,true);
 
-                    Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + player.getDisplayName() + " OBTAINED " + playersGoals.get(player) + " !");
+                    Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + player.getDisplayName().toUpperCase(Locale.ROOT) +
+                            " OBTAINED " + playersGoals.get(player) + " AND SCORED " + GIVEN_POINTS_BASED_ON_OBTAINING + " POINTS !");
+
+                    player.spawnParticle(Particle.TOTEM,player.getLocation(),5);
+                    player.sendTitle(ChatColor.GOLD + "" + ChatColor.BOLD + "ITEM OBTAINED", "+" +
+                            GIVEN_POINTS_BASED_ON_OBTAINING + " point(s)",5,60,15);
+
+                    playersPoints.put(player, playersPoints.get(player) + GIVEN_POINTS_BASED_ON_OBTAINING);
+                    GIVEN_POINTS_BASED_ON_OBTAINING--;
 
                     for (Player player1 : currentPlayers) {
                         player1.playSound(player1.getLocation(), Sound.ITEM_TOTEM_USE, 0.5f, 0.5f);
@@ -170,6 +182,12 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
     public void playViaCommand(){
 
+        if (COMPLETED_ROUNDS == 7){
+            //TODO SHOW GAINED POINTS AND FINISH GAME
+            RESET_COMPLETED_ROUNDS();
+            return;
+        }
+
             if (!currentPlayers.isEmpty())
                 currentPlayers.clear();
 
@@ -181,14 +199,18 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
             timerTask = new TimerTask(this);
 
-            RandomItem();
+            RandomItemAssigning();
+
+            GIVEN_POINTS_BASED_ON_OBTAINING = currentPlayers.size();
 
         System.out.println(playersGoals);
     }
 
-    private void RandomItem(){
+    private void RandomItemAssigning(){
 
         for (Player player : currentPlayers){
+
+            playersPoints.put(player,0);
 
             int goal_index = indexToChooseItemFrom();
             int randomMatIndex = (int)(Math.random() * allPossibleItems.get(goal_index).size());
@@ -197,24 +219,24 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
             playersGoals.put(player,goal);
             isDone.put(player, false);
 
-            player.sendMessage(ChatColor.DARK_RED + "Item to obtain is -> " + playersGoals.get(player));
-
+            //player.sendMessage(ChatColor.DARK_RED + "Item to obtain is -> " + playersGoals.get(player));
+            player.sendTitle(ChatColor.DARK_RED + "" + playersGoals.get(player),"is the Item to obtain!",5,60,15);
         }
     }
-    //TODO CHANGE VALUES
     private static int indexToChooseItemFrom(){
 
         int randomNumber = (int)(Math.random() * 100);
+        System.out.println("the random number is -> " + randomNumber);
 
         switch (COMPLETED_ROUNDS){
             case 0:
             case 1:
                 return 0;
             case 2: return randomNumber > 90 ? 1 : 0;
-            case 3: return randomNumber > 70 ? 1 : 0;
-            case 4: return randomNumber > 50 ? randomNumber > 95 ? 2 : 1 : 0;
-            case 5: return randomNumber > 50 ? randomNumber > 80 ? 2 : 1 : 0;
-            default: return randomNumber > 30 ? randomNumber > 65 ? 2 : 1 : 0;
+            case 3: return randomNumber > 80 ? 1 : 0;
+            case 4: return randomNumber > 70 ? randomNumber > 95 ? 2 : 1 : 0;
+            case 5: return randomNumber > 60 ? randomNumber > 90 ? 2 : 1 : 0;
+            default: return randomNumber > 50 ? randomNumber > 85 ? 2 : 1 : 0;
         }
     }
 }
