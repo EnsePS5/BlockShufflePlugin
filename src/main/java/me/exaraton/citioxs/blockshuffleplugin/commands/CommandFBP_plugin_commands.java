@@ -11,6 +11,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.Locale;
 
 public class CommandFBP_plugin_commands implements CommandExecutor {
 
@@ -42,21 +43,27 @@ public class CommandFBP_plugin_commands implements CommandExecutor {
                 sender.sendMessage(ChatColor.DARK_RED + "Item to obtain: " + blockShufflePlugin.playersGoals.get(sender));
 
                 int tierLevel = 1;
-                for (List<Material> tier : blockShufflePlugin.allPossibleItems){
-                    if (tier.contains(blockShufflePlugin.playersGoals.get(sender))){
+                for (int i = 0; i < blockShufflePlugin.allPossibleItems.size(); i++){
+
+                    for (int j = 0; j < blockShufflePlugin.allPossibleItems.get(i).size() ; j++) {
+
+                        if (blockShufflePlugin.allPossibleItems.get(i).contains(blockShufflePlugin.playersGoals.get(sender)))
+                        {
                         sender.sendMessage(ChatColor.DARK_RED + "Tier: " + tierLevel +
-                                "\nId in tier list: " + tier.indexOf(blockShufflePlugin.playersGoals.get(sender)));
-
-                        tierLevel++;
+                                "\nId in tier list: " + blockShufflePlugin.allPossibleItems.get(i).
+                                indexOf(blockShufflePlugin.playersGoals.get(sender)));
+                        break;
+                        }
                     }
+                    tierLevel++;
                 }
-
-            }else if (args[0].equals("locate")){
+            //TODO ZNAJDZ SPOSOB BY INFO O LOKALIZACJI DAWAC DO PLEYERA
+            }else if (args[0].equals("locatebiome")){
 
                 ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
 
                 String biomes = args[1];
-                if (!Bukkit.dispatchCommand(console, "/locate " + biomes)){
+                if (!Bukkit.dispatchCommand(console, "locatebiome minecraft:" + biomes.toLowerCase(Locale.ROOT))){
                     sender.sendMessage(ChatColor.RED + biomes + " does not exist");
                 }else
                     sender.sendMessage(sender.getName() + " located " + biomes);

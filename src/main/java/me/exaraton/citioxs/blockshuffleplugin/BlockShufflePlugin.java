@@ -44,6 +44,7 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
     private static boolean HAS_GAME_ENDED = false;
 
+    private ConsoleCommandSender console;
 
 
 
@@ -56,6 +57,8 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
         // Plugin startup logic
 
         System.out.println("Initializing " + BlockShufflePlugin.class.getName());
+
+        console = Bukkit.getServer().getConsoleSender();
 
         //IN PROGRESS -> MAKE TIER LIST TODO CONTINUE
         List<Material> tierI = Arrays.asList(Material.DIRT,Material.COBBLESTONE,Material.CLAY,Material.GRAVEL,Material.SAND,                    //Basic blocks
@@ -92,7 +95,6 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                 );
 
         List<Material> tierII = Arrays.asList(Material.IRON_DOOR,Material.IRON_TRAPDOOR,Material.TNT,Material.MINECART,
-
                 Material.LAVA_BUCKET,Material.WATER_BUCKET,Material.COD_BUCKET,Material.SALMON_BUCKET,                                          //Buckets
                 Material.DIAMOND,Material.REDSTONE,Material.REDSTONE_BLOCK,Material.RAW_GOLD,                                                   //Deep ores
                 Material.GOLD_INGOT,Material.GOLD_NUGGET,Material.COAL_BLOCK,Material.LAPIS_LAZULI,Material.TUFF,
@@ -112,14 +114,15 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                 Material.GOLD_BLOCK,Material.ANVIL,Material.BLAZE_POWDER,Material.BLAZE_ROD,
                 Material.DARK_OAK_LEAVES,Material.OAK_LEAVES,Material.BIRCH_LEAVES,Material.JUNGLE_LEAVES,Material.SPRUCE_LEAVES,               //LEAVES
                 Material.ENCHANTED_BOOK,
-                Material.IRON_CHESTPLATE,Material.IRON_LEGGINGS,Material.IRON_BOOTS,Material.IRON_BOOTS,Material.SHIELD,Material.IRON_BLOCK     //Iron armor
-                );
+                Material.IRON_CHESTPLATE,Material.IRON_LEGGINGS,Material.IRON_BOOTS,Material.IRON_HELMET,Material.SHIELD,Material.IRON_BLOCK,   //Iron armor
+                Material.GOLDEN_CHESTPLATE,Material.GOLDEN_LEGGINGS,Material.GOLDEN_BOOTS,Material.GOLDEN_HELMET,Material.GOLD_BLOCK);
 
         allPossibleItems.add(tierI);
         allPossibleItems.add(tierII);
         allPossibleItems.add(tierIII);
 
         System.out.println("added Items - tierI :\n" + tierI + "\nTierII : " + tierII + "\nTierIII : " + tierIII);
+        System.out.println("Currently added: " + allPossibleItems.size());
         //REJERSTRACJA KOMEND I EVENTOW
         getServer().getPluginManager().registerEvents(this,this);
         Objects.requireNonNull(this.getCommand("runBS")).setExecutor(new CommandRunBS(this));
@@ -231,16 +234,25 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
             if (firstPlayer != null) {
                 for (Player player : currentPlayers) {
                     player.sendTitle(ChatColor.GOLD + firstPlayer.getDisplayName() + " WINS!", "Congratulations!", 5, 80, 15);
+
                 }
 
                 firstPlayer.playSound(firstPlayer.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 1, 1);
                 firstPlayer.playSound(firstPlayer.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE,.5f,.5f);
+                firstPlayer.spawnParticle(Particle.TOTEM,firstPlayer.getLocation(),250);
+                firstPlayer.spawnParticle(Particle.FLASH,firstPlayer.getLocation().add(0,10,0),100);
 
                 Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.ITALIC + "The BlockShuffle game has ended.");
 
                 RESET_ROUNDS_STATS();
 
                 HAS_GAME_ENDED = true;
+
+                Bukkit.dispatchCommand(console, "gamerule logAdminCommands true");
+                Bukkit.dispatchCommand(console, "gamerule commandBlockOutput true");
+                Bukkit.dispatchCommand(console, "effect clear @a");
+                Bukkit.dispatchCommand(console, "gamerule keepInventory false");
+                Bukkit.dispatchCommand(console, "gamerule doWeatherCycle true");
 
                 return;
             }
@@ -251,9 +263,9 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                 objective.setDisplayName(ChatColor.GOLD + "Points/" + ChatColor.RED + "Last Round");
         }
 
-        if (COMPLETED_ROUNDS >= 0 && COMPLETED_ROUNDS <= 5){
+        if (COMPLETED_ROUNDS > 0 && COMPLETED_ROUNDS <= 5){
                 //player.sendTitle(ChatColor.YELLOW + "STARTING ROUND " + (COMPLETED_ROUNDS + 1) + "!", null, 5 ,40 ,15);
-                objective.setDisplayName(ChatColor.GOLD + "Points/Round " + COMPLETED_ROUNDS+1);
+            objective.setDisplayName(ChatColor.GOLD + "Points/Round " + (COMPLETED_ROUNDS+1));
         }
 
             if (!currentPlayers.isEmpty())
@@ -297,15 +309,16 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                 player.setScoreboard(scoreboard);
             }
             //Command setter
-            ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
+            Bukkit.dispatchCommand(console, "gamerule logAdminCommands false");
+            Bukkit.dispatchCommand(console, "gamerule commandBlockOutput false");
             Bukkit.dispatchCommand(console, "time set 0");
-            Bukkit.dispatchCommand(console, "effect give @a minecraft:night_vision 2520");
+            Bukkit.dispatchCommand(console, "effect give @a minecraft:night_vision 2520 1 true");
             Bukkit.dispatchCommand(console, "gamerule keepInventory true");
             Bukkit.dispatchCommand(console, "gamerule doWeatherCycle false");
             Bukkit.dispatchCommand(console, "gamerule doDaylightCycle true");
 
             Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.ITALIC + "BlockShuffle settings: ");
-            Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.ITALIC + "night vision: true ");
+            Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.ITALIC + "night vision: true/particle off");
             Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.ITALIC + "keep Inventory: true ");
             Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.ITALIC + "doDaylightCycle: true ");
             Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.ITALIC + "doWeatherCycle: false ");
