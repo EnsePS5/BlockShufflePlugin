@@ -61,7 +61,7 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
         console = Bukkit.getServer().getConsoleSender();
 
         //IN PROGRESS -> MAKE TIER LIST TODO CONTINUE
-        List<Material> tierI = Arrays.asList(Material.DIRT,Material.COBBLESTONE,Material.CLAY,Material.GRAVEL,Material.SAND,                    //Basic blocks
+        List<Material> tierI = Arrays.asList(Material.DIRT,Material.COBBLESTONE,Material.CLAY,Material.GRAVEL,Material.SAND,Material.COARSE_DIRT,//Basic blocks
                 Material.WOODEN_AXE,Material.WOODEN_HOE,Material.WOODEN_PICKAXE,Material.WOODEN_SHOVEL,Material.WOODEN_SWORD,                   //TOOLS
                 Material.STONE_AXE,Material.STONE_HOE,Material.STONE_PICKAXE,Material.STONE_SHOVEL,Material.STONE_SWORD,
                 Material.BOW,Material.BOWL,Material.FISHING_ROD,Material.LEVER,Material.STONE_BUTTON,                                           //RÓŻNE
@@ -74,7 +74,7 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                 Material.PORKCHOP,Material.COOKED_PORKCHOP,Material.BEEF,Material.COOKED_BEEF,Material.MUTTON,Material.COOKED_MUTTON,           //FOOD
                 Material.CHICKEN,Material.COOKED_CHICKEN,Material.COD,Material.COOKED_COD,Material.SALMON,Material.COOKED_SALMON,Material.APPLE,
                 Material.SUGAR,Material.EGG,Material.BREAD,Material.HAY_BLOCK,Material.COCOA_BEANS,Material.PUMPKIN,Material.MELON,Material.CARROT,
-                Material.BEETROOT,
+                Material.BEETROOT,Material.BROWN_MUSHROOM,Material.RED_MUSHROOM,
                 Material.BONE,Material.BONE_MEAL,Material.ROTTEN_FLESH,Material.STRING,Material.GUNPOWDER,Material.ENDER_PEARL,                 //MONSTER AND SPECIAL ANIMAL LOOT
                 Material.LEATHER,Material.RABBIT_HIDE,Material.INK_SAC,
                 Material.WHEAT_SEEDS,Material.DANDELION,Material.POPPY,Material.CORNFLOWER,Material.OXEYE_DAISY,Material.LILY_OF_THE_VALLEY,    //FLOWERS
@@ -108,14 +108,15 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                 Material.PINK_CONCRETE_POWDER,Material.PURPLE_CONCRETE_POWDER,Material.RED_CONCRETE_POWDER,Material.YELLOW_CONCRETE_POWDER,
                 Material.IRON_AXE,Material.IRON_HOE,Material.IRON_PICKAXE,Material.IRON_SHOVEL,Material.IRON_SWORD,                             //Tools
                 Material.SHEARS,Material.FLINT_AND_STEEL,Material.GOLDEN_AXE,Material.GOLDEN_PICKAXE,Material.GOLDEN_SHOVEL,
-                Material.GOLDEN_SWORD,Material.GOLDEN_HOE);
+                Material.GOLDEN_SWORD,Material.GOLDEN_HOE,Material.TERRACOTTA,Material.WHITE_GLAZED_TERRACOTTA);
 
         List<Material> tierIII = Arrays.asList(Material.OBSIDIAN,Material.NETHERRACK, Material.SOUL_SAND,Material.SOUL_SOIL,Material.BONE_BLOCK,//Nether Blocks
-                Material.GOLD_BLOCK,Material.ANVIL,Material.BLAZE_POWDER,Material.BLAZE_ROD,
+                Material.GOLD_BLOCK,Material.ANVIL,Material.BLAZE_POWDER,Material.BLAZE_ROD,Material.QUARTZ,Material.GLOWSTONE,
+                Material.BASALT, Material.BLACKSTONE,
                 Material.DARK_OAK_LEAVES,Material.OAK_LEAVES,Material.BIRCH_LEAVES,Material.JUNGLE_LEAVES,Material.SPRUCE_LEAVES,               //LEAVES
                 Material.ENCHANTED_BOOK,
                 Material.IRON_CHESTPLATE,Material.IRON_LEGGINGS,Material.IRON_BOOTS,Material.IRON_HELMET,Material.SHIELD,Material.IRON_BLOCK,   //Iron armor
-                Material.GOLDEN_CHESTPLATE,Material.GOLDEN_LEGGINGS,Material.GOLDEN_BOOTS,Material.GOLDEN_HELMET,Material.GOLD_BLOCK);
+                Material.GOLDEN_CHESTPLATE,Material.GOLDEN_LEGGINGS,Material.GOLDEN_BOOTS,Material.GOLDEN_HELMET,Material.GOLD_BLOCK);          //Gold armor
 
         allPossibleItems.add(tierI);
         allPossibleItems.add(tierII);

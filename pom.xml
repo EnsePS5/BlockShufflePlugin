@@ -6,7 +6,7 @@
 
     <groupId>me.exaraton.citioxs</groupId>
     <artifactId>BlockShufflePlugin</artifactId>
-    <version>1.8.0_BASIC</version>
+    <version>1.8.1_BASIC_NEWBLOCKUPDATE</version>
     <packaging>jar</packaging>
 
     <name>BlockShufflePlugin</name>
