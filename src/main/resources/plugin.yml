@@ -6,8 +6,8 @@ authors: [ citioxs ]
 description: Custom versus plugin with goal to obtain certain block in given amount of time
 commands:
   runBS:
-    description: runs BlockShuffle with default settigs
+    description: runs BlockShuffle with default settigs. Possible argments - setTime [timeInMinutes]
     usage: /<command>
   FBP_plugin_commands:
-    description: shows available commands to player
+    description: shows available commands to player. Possible arguments - objectiveInfo
     usage: /<command>

@@ -1,5 +1,9 @@
 package me.exaraton.citioxs.blockshuffleplugin;
 
+import me.exaraton.citioxs.blockshuffleplugin.commands.CommandFBP_plugin_commands;
+import me.exaraton.citioxs.blockshuffleplugin.commands.CommandRunBS;
+import me.exaraton.citioxs.blockshuffleplugin.tasks.TimerTask;
+import net.md_5.bungee.api.chat.ClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -17,13 +21,17 @@ import java.util.*;
 
 public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
-    private final ArrayList<List<Material>> allPossibleItems = new ArrayList<>();
-    private final Map<Player, Material> playersGoals = new HashMap<>();
-    ArrayList<Player> currentPlayers = new ArrayList<>();
+    public final ArrayList<List<Material>> allPossibleItems = new ArrayList<>();
+    public final Map<Player, Material> playersGoals = new HashMap<>();
+    public ArrayList<Player> currentPlayers = new ArrayList<>();
     Map<Player, Boolean> isDone = new HashMap<>();
-    TimerTask timerTask;
+    public me.exaraton.citioxs.blockshuffleplugin.tasks.TimerTask timerTask;
 
     private static int COMPLETED_ROUNDS = 0;
+
+    public static void RESET_COMPLETED_ROUNDS(){
+        COMPLETED_ROUNDS = 0;
+    }
 
     @Override
     public void onEnable() {
@@ -42,10 +50,11 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                 Material.GRANITE,Material.GRANITE_SLAB,Material.GRANITE_STAIRS,Material.GRANITE_WALL,Material.POLISHED_GRANITE,
                 Material.DEEPSLATE,Material.COBBLED_DEEPSLATE,Material.STONE,Material.SMOOTH_STONE,Material.SANDSTONE,
                 Material.RAW_IRON,Material.RAW_COPPER,Material.COAL,Material.CHARCOAL,Material.BUCKET,Material.EMERALD,                         //ORES AND BUCKET
-                Material.COPPER_INGOT,Material.IRON_INGOT,Material.FLINT,Material.TORCH,Material.CAMPFIRE,
+                Material.COPPER_INGOT,Material.IRON_INGOT,Material.FLINT,Material.TORCH,Material.CAMPFIRE,Material.COPPER_INGOT,Material.IRON_INGOT,
                 Material.PORKCHOP,Material.COOKED_PORKCHOP,Material.BEEF,Material.COOKED_BEEF,Material.MUTTON,Material.COOKED_MUTTON,           //FOOD
                 Material.CHICKEN,Material.COOKED_CHICKEN,Material.COD,Material.COOKED_COD,Material.SALMON,Material.COOKED_SALMON,Material.APPLE,
-                Material.SUGAR,Material.EGG,Material.BREAD,Material.HAY_BLOCK,Material.COCOA_BEANS,
+                Material.SUGAR,Material.EGG,Material.BREAD,Material.HAY_BLOCK,Material.COCOA_BEANS,Material.PUMPKIN,Material.MELON,Material.CARROT,
+                Material.BEETROOT,
                 Material.BONE,Material.BONE_MEAL,Material.ROTTEN_FLESH,Material.STRING,Material.GUNPOWDER,Material.ENDER_PEARL,                 //MONSTER AND SPECIAL ANIMAL LOOT
                 Material.LEATHER,Material.RABBIT_HIDE,Material.INK_SAC,
                 Material.WHEAT_SEEDS,Material.DANDELION,Material.POPPY,Material.CORNFLOWER,Material.OXEYE_DAISY,Material.LILY_OF_THE_VALLEY,    //FLOWERS
@@ -62,15 +71,20 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                 Material.DARK_OAK_LOG,Material.DARK_OAK_DOOR,Material.DARK_OAK_BUTTON,Material.DARK_OAK_FENCE,Material.DARK_OAK_FENCE_GATE,Material.DARK_OAK_PLANKS,
                 Material.OAK_SIGN,Material.BIRCH_SIGN,Material.SPRUCE_SIGN,Material.JUNGLE_SIGN,Material.DARK_OAK_SIGN,                         //SIGNS
                 Material.CRAFTING_TABLE,Material.FURNACE,Material.CHEST,Material.BARREL,Material.GLASS,Material.GLASS_PANE,                     //SPECIAL BLOCKS / GLASS
-                Material.PAPER
+                Material.PAPER,Material.BRICKS,Material.BRICK
                 );
 
         List<Material> tierII = Arrays.asList(Material.IRON_DOOR,Material.IRON_TRAPDOOR,Material.TNT,Material.MINECART,
-                Material.OBSIDIAN,Material.NETHERRACK, Material.SOUL_SAND,Material.SOUL_SOIL,Material.BONE_BLOCK,
-                Material.LAVA_BUCKET,Material.WATER_BUCKET,Material.DIAMOND,Material.REDSTONE,Material.REDSTONE_BLOCK);
+
+                Material.LAVA_BUCKET,Material.WATER_BUCKET,Material.DIAMOND,Material.REDSTONE,Material.REDSTONE_BLOCK,Material.RAW_GOLD,        //Deep ores
+                Material.GOLD_INGOT,Material.GOLD_NUGGET,Material.COAL_BLOCK,Material.IRON_BLOCK,
+                Material.BOOKSHELF,
+                Material.BLACK_CONCRETE,Material.WHITE_CONCRETE,Material.BLUE_CONCRETE,Material.BROWN_CONCRETE,Material.CYAN_CONCRETE,
+                Material.GRAY_CONCRETE,Material.GREEN_CONCRETE,Material.LIGHT_BLUE_CONCRETE,Material.LIGHT_GRAY_CONCRETE,Material.LIME_CONCRETE,
+                Material.MAGENTA_CONCRETE,Material.ORANGE_CONCRETE,Material.PINK_CONCRETE,Material.PURPLE_CONCRETE,Material.RED_CONCRETE,Material.YELLOW_CONCRETE);
         System.out.println("added Items - tierI :\n" + tierI + "\nTierII : " + tierII);
 
-        List<Material> tierIII = Arrays.asList();
+        List<Material> tierIII = Arrays.asList(Material.OBSIDIAN,Material.NETHERRACK, Material.SOUL_SAND,Material.SOUL_SOIL,Material.BONE_BLOCK); //Nether Blocks
 
         allPossibleItems.add(tierI);
         allPossibleItems.add(tierII);
@@ -112,23 +126,19 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
         playerQuitEvent.setQuitMessage(ChatColor.DARK_RED + "" + ChatColor.ITALIC + playerQuitEvent.getPlayer().getDisplayName() + " left" );
     }
 
-
     @EventHandler
     public void pickUpItem(PlayerPickupItemEvent playerPickupItemEvent){
 
-        System.out.println("Picked up Item by: ");
         ItemStack item = playerPickupItemEvent.getItem().getItemStack();
 
         if (!currentPlayers.isEmpty()){
 
             for (Player player : currentPlayers){
 
-                System.out.println(player.getDisplayName());
-
-                if ((playersGoals.get(player) == item.getType() || player.getInventory().contains(playersGoals.get(player))) && !isDone.get(player)){
+                if ((playersGoals.get(player) == item.getType() && !isDone.get(player))){
                     isDone.put(player,true);
 
-                    Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + player.getDisplayName() + " OBTAINED " + item.getType() + " !");
+                    Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + player.getDisplayName() + " OBTAINED " + playersGoals.get(player) + " !");
 
                     for (Player player1 : currentPlayers) {
                         player1.playSound(player1.getLocation(), Sound.ITEM_TOTEM_USE, 0.5f, 0.5f);
@@ -171,18 +181,17 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
             timerTask = new TimerTask(this);
 
-            RandomItem(currentPlayers,allPossibleItems,playersGoals,isDone);
+            RandomItem();
 
+        System.out.println(playersGoals);
     }
 
-    private static void RandomItem(ArrayList<Player> currentPlayers, ArrayList<List<Material>> allPossibleItems,
-                                   Map<Player, Material> playersGoals, Map<Player, Boolean> isDone){
+    private void RandomItem(){
 
         for (Player player : currentPlayers){
 
             int goal_index = indexToChooseItemFrom();
             int randomMatIndex = (int)(Math.random() * allPossibleItems.get(goal_index).size());
-            randomMatIndex = randomMatIndex == 0 ? 1 : randomMatIndex;
             Material goal = allPossibleItems.get(goal_index).get(randomMatIndex);
 
             playersGoals.put(player,goal);
@@ -198,12 +207,14 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
         int randomNumber = (int)(Math.random() * 100);
 
         switch (COMPLETED_ROUNDS){
-            case 0: return 0;
-            case 1: return randomNumber > 80 ? 1 : 0;
-            case 2: return randomNumber > 60 ? randomNumber > 95 ? 1 : 1 : 0;
-            case 3: return randomNumber > 40 ? randomNumber > 80 ? 1 : 1 : 0;
-            case 4: return randomNumber > 20 ? randomNumber > 60 ? 1 : 1 : 0;
-            default: return randomNumber > 10 ? randomNumber > 40 ? 1 : 1 : 0;
+            case 0:
+            case 1:
+                return 0;
+            case 2: return randomNumber > 90 ? 1 : 0;
+            case 3: return randomNumber > 70 ? 1 : 0;
+            case 4: return randomNumber > 50 ? randomNumber > 95 ? 2 : 1 : 0;
+            case 5: return randomNumber > 50 ? randomNumber > 80 ? 2 : 1 : 0;
+            default: return randomNumber > 30 ? randomNumber > 65 ? 2 : 1 : 0;
         }
     }
 }

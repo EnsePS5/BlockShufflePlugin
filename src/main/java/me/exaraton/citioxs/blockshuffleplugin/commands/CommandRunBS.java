@@ -1,5 +1,6 @@
-package me.exaraton.citioxs.blockshuffleplugin;
+package me.exaraton.citioxs.blockshuffleplugin.commands;
 
+import me.exaraton.citioxs.blockshuffleplugin.BlockShufflePlugin;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -17,7 +18,14 @@ public class CommandRunBS implements CommandExecutor{
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
         if (sender.isOp())
-            blockShufflePlugin.playViaCommand();
+        {
+            if (args.length == 0) {
+                BlockShufflePlugin.RESET_COMPLETED_ROUNDS();
+                blockShufflePlugin.playViaCommand();
+            }else if (args[0].equals("setTime") && Integer.parseInt(args[1]) >= 0){
+                blockShufflePlugin.timerTask.changeTime(Integer.parseInt(args[1]));
+            }
+        }
         else
         {
             sender.sendMessage(ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "YOU ARE NOT ALLOWED TO USE THAT COMMAND");
