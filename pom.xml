@@ -6,7 +6,7 @@
 
     <groupId>me.exaraton.citioxs</groupId>
     <artifactId>BlockShufflePlugin</artifactId>
-    <version>1.7.4.2_WINCONDITION_HOTFIX_PARTICLEOFF</version>
+    <version>1.8.0_BASIC</version>
     <packaging>jar</packaging>
 
     <name>BlockShufflePlugin</name>

@@ -216,7 +216,7 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
         }
     }
 
-    public void playViaCommand(){
+    public synchronized void playViaCommand(){
 
         System.out.println(COMPLETED_ROUNDS + " -> number of completed rounds!");
 

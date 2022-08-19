@@ -72,6 +72,8 @@ public class TimerTask extends Thread  {
 
                     blockShufflePlugin.playViaCommand(); //starting new round
 
+                    Thread.sleep(100);
+
                     this.interrupt();
                 }
             } catch (InterruptedException e) {
