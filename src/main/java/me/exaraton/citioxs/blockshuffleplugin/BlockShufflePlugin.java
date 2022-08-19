@@ -142,7 +142,7 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                 if ((playersGoals.get(player) == item.getType() && !isDone.get(player))){
                     isDone.put(player,true);
 
-                    Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + player.getDisplayName().toUpperCase(Locale.ROOT) +
+                    Bukkit.broadcastMessage(ChatColor.GOLD + "" + ChatColor.BOLD + player.getDisplayName().toUpperCase(Locale.ROOT) +
                             " OBTAINED " + playersGoals.get(player) + " AND SCORED " + GIVEN_POINTS_BASED_ON_OBTAINING + " POINTS !");
 
                     player.spawnParticle(Particle.TOTEM,player.getLocation(),5);
@@ -219,8 +219,8 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
             playersGoals.put(player,goal);
             isDone.put(player, false);
 
-            //player.sendMessage(ChatColor.DARK_RED + "Item to obtain is -> " + playersGoals.get(player));
-            player.sendTitle(ChatColor.DARK_RED + "" + playersGoals.get(player),"is the Item to obtain!",5,60,15);
+            player.sendMessage(ChatColor.YELLOW + "Item to obtain is -> " + playersGoals.get(player));
+            player.sendTitle(ChatColor.WHITE + "" + playersGoals.get(player),ChatColor.YELLOW + "is the Item to obtain!",5,60,15);
         }
     }
     private static int indexToChooseItemFrom(){
