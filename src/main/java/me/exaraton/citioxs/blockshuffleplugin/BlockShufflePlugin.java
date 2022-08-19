@@ -16,6 +16,8 @@ import org.bukkit.scoreboard.*;
 
 import java.util.*;
 
+//TODO COMPASS SHOWING BIOMES
+//TODO SPECIAL OBJECTIVE (KILL MOB OR FIND ANOTHER ITEM ETC.)
 public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
     public final ArrayList<List<Material>> allPossibleItems = new ArrayList<>();
@@ -32,7 +34,7 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
     public Scoreboard scoreboard;
     public Objective objective;
 
-    private Map<Player, Boolean> isDone = new HashMap<>();
+    public Map<Player, Boolean> isDone = new HashMap<>();
 
     public me.exaraton.citioxs.blockshuffleplugin.tasks.TimerTask timerTask;
 
@@ -59,7 +61,6 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
         List<Material> tierI = Arrays.asList(Material.DIRT,Material.COBBLESTONE,Material.CLAY,Material.GRAVEL,Material.SAND,                    //Basic blocks
                 Material.WOODEN_AXE,Material.WOODEN_HOE,Material.WOODEN_PICKAXE,Material.WOODEN_SHOVEL,Material.WOODEN_SWORD,                   //TOOLS
                 Material.STONE_AXE,Material.STONE_HOE,Material.STONE_PICKAXE,Material.STONE_SHOVEL,Material.STONE_SWORD,
-                Material.IRON_AXE,Material.IRON_HOE,Material.IRON_PICKAXE,Material.IRON_SHOVEL,Material.IRON_SWORD,
                 Material.BOW,Material.BOWL,Material.FISHING_ROD,Material.LEVER,Material.STONE_BUTTON,                                           //RÓŻNE
                 Material.ANDESITE,Material.ANDESITE_SLAB,Material.ANDESITE_STAIRS,Material.ANDESITE_WALL,Material.POLISHED_ANDESITE,            //SOTNE VARIANTS
                 Material.DIORITE,Material.DIORITE_SLAB,Material.DIORITE_STAIRS,Material.DIORITE_WALL,Material.POLISHED_DIORITE,
@@ -92,20 +93,33 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
         List<Material> tierII = Arrays.asList(Material.IRON_DOOR,Material.IRON_TRAPDOOR,Material.TNT,Material.MINECART,
 
-                Material.LAVA_BUCKET,Material.WATER_BUCKET,Material.DIAMOND,Material.REDSTONE,Material.REDSTONE_BLOCK,Material.RAW_GOLD,        //Deep ores
-                Material.GOLD_INGOT,Material.GOLD_NUGGET,Material.COAL_BLOCK,Material.IRON_BLOCK,
-                Material.BOOKSHELF,
-                Material.BLACK_CONCRETE,Material.WHITE_CONCRETE,Material.BLUE_CONCRETE,Material.BROWN_CONCRETE,Material.CYAN_CONCRETE,
+                Material.LAVA_BUCKET,Material.WATER_BUCKET,Material.COD_BUCKET,Material.SALMON_BUCKET,                                          //Buckets
+                Material.DIAMOND,Material.REDSTONE,Material.REDSTONE_BLOCK,Material.RAW_GOLD,                                                   //Deep ores
+                Material.GOLD_INGOT,Material.GOLD_NUGGET,Material.COAL_BLOCK,Material.LAPIS_LAZULI,Material.TUFF,
+                Material.BOOKSHELF,Material.RAIL,Material.RAW_IRON_BLOCK,Material.RAW_COPPER_BLOCK,Material.TRAPPED_CHEST,                      //Different ones
+                Material.BLACK_CONCRETE,Material.WHITE_CONCRETE,Material.BLUE_CONCRETE,Material.BROWN_CONCRETE,Material.CYAN_CONCRETE,          //Concrete
                 Material.GRAY_CONCRETE,Material.GREEN_CONCRETE,Material.LIGHT_BLUE_CONCRETE,Material.LIGHT_GRAY_CONCRETE,Material.LIME_CONCRETE,
-                Material.MAGENTA_CONCRETE,Material.ORANGE_CONCRETE,Material.PINK_CONCRETE,Material.PURPLE_CONCRETE,Material.RED_CONCRETE,Material.YELLOW_CONCRETE);
-        System.out.println("added Items - tierI :\n" + tierI + "\nTierII : " + tierII);
+                Material.MAGENTA_CONCRETE,Material.ORANGE_CONCRETE,Material.PINK_CONCRETE,Material.PURPLE_CONCRETE,Material.RED_CONCRETE,Material.YELLOW_CONCRETE,
+                Material.BLACK_CONCRETE_POWDER,Material.WHITE_CONCRETE_POWDER,Material.BLUE_CONCRETE_POWDER,Material.BROWN_CONCRETE_POWDER,     //Concrete powder
+                Material.CYAN_CONCRETE_POWDER,Material.GRAY_CONCRETE_POWDER,Material.GREEN_CONCRETE_POWDER,Material.LIGHT_BLUE_CONCRETE_POWDER,
+                Material.LIGHT_GRAY_CONCRETE_POWDER,Material.LIME_CONCRETE_POWDER,Material.MAGENTA_CONCRETE_POWDER,Material.ORANGE_CONCRETE_POWDER,
+                Material.PINK_CONCRETE_POWDER,Material.PURPLE_CONCRETE_POWDER,Material.RED_CONCRETE_POWDER,Material.YELLOW_CONCRETE_POWDER,
+                Material.IRON_AXE,Material.IRON_HOE,Material.IRON_PICKAXE,Material.IRON_SHOVEL,Material.IRON_SWORD,                             //Tools
+                Material.SHEARS,Material.FLINT_AND_STEEL,Material.GOLDEN_AXE,Material.GOLDEN_PICKAXE,Material.GOLDEN_SHOVEL,
+                Material.GOLDEN_SWORD,Material.GOLDEN_HOE);
 
-        List<Material> tierIII = Arrays.asList(Material.OBSIDIAN,Material.NETHERRACK, Material.SOUL_SAND,Material.SOUL_SOIL,Material.BONE_BLOCK); //Nether Blocks
+        List<Material> tierIII = Arrays.asList(Material.OBSIDIAN,Material.NETHERRACK, Material.SOUL_SAND,Material.SOUL_SOIL,Material.BONE_BLOCK,//Nether Blocks
+                Material.GOLD_BLOCK,Material.ANVIL,Material.BLAZE_POWDER,Material.BLAZE_ROD,
+                Material.DARK_OAK_LEAVES,Material.OAK_LEAVES,Material.BIRCH_LEAVES,Material.JUNGLE_LEAVES,Material.SPRUCE_LEAVES,               //LEAVES
+                Material.ENCHANTED_BOOK,
+                Material.IRON_CHESTPLATE,Material.IRON_LEGGINGS,Material.IRON_BOOTS,Material.IRON_BOOTS,Material.SHIELD,Material.IRON_BLOCK     //Iron armor
+                );
 
         allPossibleItems.add(tierI);
         allPossibleItems.add(tierII);
         allPossibleItems.add(tierIII);
 
+        System.out.println("added Items - tierI :\n" + tierI + "\nTierII : " + tierII + "\nTierIII : ");
         //REJERSTRACJA KOMEND I EVENTOW
         getServer().getPluginManager().registerEvents(this,this);
         Objects.requireNonNull(this.getCommand("runBS")).setExecutor(new CommandRunBS(this));
@@ -161,12 +175,12 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                     isDone.put(player,true);
 
                     Bukkit.broadcastMessage(ChatColor.GOLD + "" + ChatColor.BOLD + player.getDisplayName().toUpperCase(Locale.ROOT) +
-                            " OBTAINED " + playersGoals.get(player) + " AND SCORED " + GIVEN_POINTS_BASED_ON_OBTAINING + " POINTS !");
+                            " OBTAINED " + playersGoals.get(player) + "!");
 
                     player.spawnParticle(Particle.TOTEM,player.getLocation(),150);
                     player.sendTitle(ChatColor.GOLD + "" + ChatColor.BOLD + "ITEM OBTAINED", "+" +
                             GIVEN_POINTS_BASED_ON_OBTAINING + " point(s)",5,60,15);
-                    //TODO UPDATE SCORE COLORS?
+
                     playersPoints.put(player, playersPoints.get(player) + GIVEN_POINTS_BASED_ON_OBTAINING);
                     playersScore.get(player).setScore(playersScore.get(player).getScore() + GIVEN_POINTS_BASED_ON_OBTAINING);
 
@@ -202,10 +216,12 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
     public void playViaCommand(){
 
+        System.out.println(COMPLETED_ROUNDS + " -> number of completed rounds!");
+
         if (COMPLETED_ROUNDS == 7){//END CONDITIONS
 
             Player firstPlayer = null;
-            int currentMax = 0;
+            int currentMax = -7;
             for (Player player : currentPlayers){
                 if (playersPoints.get(player) > currentMax) {
                     currentMax = playersPoints.get(player);
@@ -285,10 +301,19 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
             objective.setDisplaySlot(DisplaySlot.SIDEBAR);
             objective.setDisplayName(ChatColor.GOLD + "Points");
 
+            ArrayList<Score> scores = new ArrayList<>();
+            for (Player player : currentPlayers)
+                scores.add(objective.getScore(ChatColor.YELLOW + player.getDisplayName() + ChatColor.GOLD + " -> "));
+
+            int index = 0;
             for (Player player : currentPlayers){
-                player.setScoreboard(scoreboard);
-                playersScore.put(player, objective.getScore(ChatColor.YELLOW + "Points: " + ChatColor.GOLD + "0"));
+                playersScore.put(player, scores.get(index));
                 playersPoints.put(player,0);
+
+                index++;
+
+                playersScore.get(player).setScore(0);
+                player.setScoreboard(scoreboard);
             }
 
         }

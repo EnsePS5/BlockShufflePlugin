@@ -24,7 +24,8 @@ public class CommandRunBS implements CommandExecutor{
                 blockShufflePlugin.playViaCommand();
             }else if (args[0].equals("setTime") && Integer.parseInt(args[1]) >= 0){
                 blockShufflePlugin.timerTask.changeTime(Integer.parseInt(args[1]));
-            }
+            }else
+                sender.sendMessage(ChatColor.RED + "<!> command does not exist");
         }
         else
         {

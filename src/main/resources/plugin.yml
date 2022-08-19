@@ -6,11 +6,9 @@ authors: [ citioxs ]
 description: Custom versus plugin with goal to obtain certain block in given amount of time
 commands:
   runBS:
-    description: runs BlockShuffle with default settigs. Possible arguments - setTime [timeInMinutes]
+    description: runs BlockShuffle with default settings. Possible arguments - setTime [timeInMinutes]
     usage: /<command>
   FBP_plugin_commands:
     description: shows available commands to player. Possible arguments - objectiveInfo
     usage: /<command>
-#TODO MAKE ARGUMENT OCCUR IN TAB
-#TODO MAKE NICER LOOKING COMMANDS HELPER
-#TODO MAKE BIOMES LOCATION
+#TODO MAKE ARGUMENT OCCUR IN TAB (For now I think it is impossible)

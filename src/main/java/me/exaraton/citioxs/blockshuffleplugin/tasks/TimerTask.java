@@ -55,21 +55,22 @@ public class TimerTask extends Thread  {
                     Bukkit.broadcastMessage(ChatColor.DARK_RED + "" + ChatColor.BOLD + "" + ChatColor.ITALIC + "Time's up!");
 
                     for (Player player : blockShufflePlugin.currentPlayers) {
-                        player.sendTitle((ChatColor.DARK_RED + "" + ChatColor.BOLD + "TIME'S UP!"), "-1 point", 5, 60, 15);
 
-                        blockShufflePlugin.playersPoints.put(player, -1);
-                        blockShufflePlugin.playersScore.get(player).setScore(blockShufflePlugin.playersScore.get(player).getScore() - 1);
+                        if (!blockShufflePlugin.isDone.get(player)) {
+
+                            player.sendTitle((ChatColor.DARK_RED + "" + ChatColor.BOLD + "TIME'S UP!"), "-1 point", 5, 60, 15);
+                            player.playSound(player.getLocation(),Sound.ENTITY_WITCH_DEATH,.6f,.6f);
+
+                            blockShufflePlugin.playersPoints.put(player, -1);
+                            blockShufflePlugin.playersScore.get(player).setScore(blockShufflePlugin.playersScore.get(player).getScore() - 1);
+                        }
                     }
 
-                        BlockShufflePlugin.COMPLETED_ROUNDS++;
+                    BlockShufflePlugin.COMPLETED_ROUNDS++;
 
                     Thread.sleep(5000);
 
-                    for (Player player : blockShufflePlugin.currentPlayers) {
-                        player.sendTitle(ChatColor.YELLOW + "STARTING " + (BlockShufflePlugin.COMPLETED_ROUNDS + 1) + " ROUND!", null, 5, 40, 15);
-                    }
-                        Thread.sleep(3000);
-                        blockShufflePlugin.playViaCommand(); //starting new round
+                    blockShufflePlugin.playViaCommand(); //starting new round
 
                     this.interrupt();
                 }
