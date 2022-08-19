@@ -4,6 +4,7 @@ import me.exaraton.citioxs.blockshuffleplugin.commands.CommandFBP_plugin_command
 import me.exaraton.citioxs.blockshuffleplugin.commands.CommandRunBS;
 import me.exaraton.citioxs.blockshuffleplugin.tasks.TimerTask;
 import org.bukkit.*;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -48,7 +49,6 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
     public static void RESET_ROUNDS_STATS(){
         COMPLETED_ROUNDS = 0;
-
     }
 
     @Override
@@ -119,7 +119,7 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
         allPossibleItems.add(tierII);
         allPossibleItems.add(tierIII);
 
-        System.out.println("added Items - tierI :\n" + tierI + "\nTierII : " + tierII + "\nTierIII : ");
+        System.out.println("added Items - tierI :\n" + tierI + "\nTierII : " + tierII + "\nTierIII : " + tierIII);
         //REJERSTRACJA KOMEND I EVENTOW
         getServer().getPluginManager().registerEvents(this,this);
         Objects.requireNonNull(this.getCommand("runBS")).setExecutor(new CommandRunBS(this));
@@ -147,7 +147,6 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
         playerJoinEvent.getPlayer().sendMessage(ChatColor.GREEN + "Welcome back " + playerJoinEvent.getPlayer().getDisplayName()
                 + " to " + ChatColor.BOLD + getServer().getName());
         playerJoinEvent.getPlayer().sendMessage(ChatColor.YELLOW + "" + ChatColor.ITALIC + "Type in /FBP_plugin_commands to get info about available commands!");
-        playerJoinEvent.getPlayer().sendMessage(ChatColor.RED + "" + ChatColor.ITALIC + "/FBP_plugin_commands is currently under develop");
         playerJoinEvent.getPlayer().sendMessage(ChatColor.GREEN + "Have a good time!");
         playerJoinEvent.getPlayer().sendMessage(ChatColor.LIGHT_PURPLE + "FBP Version: " + getDescription().getVersion());
 
@@ -248,33 +247,13 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
         }
 
         if (COMPLETED_ROUNDS == 6){
-
-            for (Player player : currentPlayers){
-                player.sendTitle(ChatColor.YELLOW + "STARTING LAST ROUND!", null, 5 ,40 ,15);
-            }
-            try {
-
-                Thread.sleep(3000);
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
+                //player.sendTitle(ChatColor.YELLOW + "STARTING LAST ROUND!", null, 5 ,40 ,15);
+                objective.setDisplayName(ChatColor.GOLD + "Points/" + ChatColor.RED + "Last Round");
         }
 
         if (COMPLETED_ROUNDS >= 0 && COMPLETED_ROUNDS <= 5){
-
-            for (Player player : currentPlayers){
-
-                player.sendTitle(ChatColor.YELLOW + "STARTING ROUND " + (COMPLETED_ROUNDS + 1) + "!", null, 5 ,40 ,15);
-                try {
-
-                    Thread.sleep(3000);
-
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+                //player.sendTitle(ChatColor.YELLOW + "STARTING ROUND " + (COMPLETED_ROUNDS + 1) + "!", null, 5 ,40 ,15);
+                objective.setDisplayName(ChatColor.GOLD + "Points/Round " + COMPLETED_ROUNDS+1);
         }
 
             if (!currentPlayers.isEmpty())
@@ -295,11 +274,13 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
             //Scoreboard
         if (COMPLETED_ROUNDS == 0){
 
+            HAS_GAME_ENDED = false;
+
             scoreboard = scoreboardManager.getNewScoreboard();
 
             objective = scoreboard.registerNewObjective("Points", "dummy", "Points");
             objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-            objective.setDisplayName(ChatColor.GOLD + "Points");
+            objective.setDisplayName(ChatColor.GOLD + "Points/Round 1");
 
             ArrayList<Score> scores = new ArrayList<>();
             for (Player player : currentPlayers)
@@ -315,6 +296,20 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                 playersScore.get(player).setScore(0);
                 player.setScoreboard(scoreboard);
             }
+            //Command setter
+            ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
+            Bukkit.dispatchCommand(console, "time set 0");
+            Bukkit.dispatchCommand(console, "effect give @a minecraft:night_vision 2520");
+            Bukkit.dispatchCommand(console, "gamerule keepInventory true");
+            Bukkit.dispatchCommand(console, "gamerule doWeatherCycle false");
+            Bukkit.dispatchCommand(console, "gamerule doDaylightCycle true");
+
+            Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.ITALIC + "BlockShuffle settings: ");
+            Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.ITALIC + "night vision: true ");
+            Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.ITALIC + "keep Inventory: true ");
+            Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.ITALIC + "doDaylightCycle: true ");
+            Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.ITALIC + "doWeatherCycle: false ");
+            Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.ITALIC + "time set: 0 ");
 
         }
 
@@ -351,5 +346,10 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
             case 5: return randomNumber > 60 ? randomNumber > 90 ? 2 : 1 : 0;
             default: return randomNumber > 50 ? randomNumber > 85 ? 2 : 1 : 0;
         }
+    }
+    public void restart(){
+        timerTask.interrupt();
+        COMPLETED_ROUNDS = 0;
+        playViaCommand();
     }
 }
