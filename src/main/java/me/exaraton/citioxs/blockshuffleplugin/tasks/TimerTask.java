@@ -20,7 +20,7 @@ public class TimerTask extends Thread  {
         this.start();
     }
 
-    private int timet = (int)(.25f * 60);
+    private int timet = 6 * 60;
     public boolean isRunning;
     public long delay = timet * 1000L;
 
