@@ -1,12 +1,10 @@
 package me.exaraton.citioxs.blockshuffleplugin.commands;
 
 import me.exaraton.citioxs.blockshuffleplugin.BlockShufflePlugin;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 
 public class CommandRunBS implements CommandExecutor{
 

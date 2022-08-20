@@ -1,6 +1,7 @@
 package me.exaraton.citioxs.blockshuffleplugin;
 
 import me.exaraton.citioxs.blockshuffleplugin.commands.CommandFBP_plugin_commands;
+import me.exaraton.citioxs.blockshuffleplugin.commands.CommandFBP_plugin_commands_tabCompletion;
 import me.exaraton.citioxs.blockshuffleplugin.commands.CommandRunBS;
 import me.exaraton.citioxs.blockshuffleplugin.tasks.TimerTask;
 import org.bukkit.*;
@@ -8,9 +9,11 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.*;
@@ -129,6 +132,7 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
         Objects.requireNonNull(this.getCommand("runBS")).setExecutor(new CommandRunBS(this));
         System.out.println("Added runBS");
         Objects.requireNonNull(this.getCommand("FBP_plugin_commands")).setExecutor(new CommandFBP_plugin_commands(this));
+        Objects.requireNonNull(this.getCommand("FBP_plugin_commands")).setTabCompleter(new CommandFBP_plugin_commands_tabCompletion());
         System.out.println("Added FBP");
 
         //SCOREBOARD
@@ -163,6 +167,13 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
     public void onPlayerLeave(PlayerQuitEvent playerQuitEvent){
 
         playerQuitEvent.setQuitMessage(ChatColor.DARK_RED + "" + ChatColor.ITALIC + playerQuitEvent.getPlayer().getDisplayName() + " left" );
+        currentPlayers.remove(playerQuitEvent.getPlayer());
+        isDone.put(playerQuitEvent.getPlayer(),true);
+    }
+
+    @EventHandler
+    public void onPlayerDeath(PlayerRespawnEvent playerRespawnEvent){
+        Bukkit.dispatchCommand(console, "effect give @a minecraft:night_vision 2520 1 true");
     }
 
     @EventHandler
@@ -224,7 +235,7 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
         if (COMPLETED_ROUNDS == 7){//END CONDITIONS
 
             Player firstPlayer = null;
-            int currentMax = -7;
+            int currentMax = -8;
             for (Player player : currentPlayers){
                 if (playersPoints.get(player) > currentMax) {
                     currentMax = playersPoints.get(player);
@@ -235,6 +246,12 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
             if (firstPlayer != null) {
                 for (Player player : currentPlayers) {
                     player.sendTitle(ChatColor.GOLD + firstPlayer.getDisplayName() + " WINS!", "Congratulations!", 5, 80, 15);
+
+                    if (player != firstPlayer){
+                        player.playSound(player,Sound.ENTITY_CREEPER_HURT,.5f,.5f);
+                        player.playSound(player,Sound.ENTITY_VEX_CHARGE, .7f,.4f);
+                        player.playSound(player,Sound.ENTITY_VEX_HURT,.4f,.6f);
+                    }
 
                 }
 

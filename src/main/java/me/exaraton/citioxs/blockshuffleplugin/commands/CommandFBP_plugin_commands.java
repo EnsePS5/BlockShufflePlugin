@@ -3,17 +3,14 @@ package me.exaraton.citioxs.blockshuffleplugin.commands;
 import me.exaraton.citioxs.blockshuffleplugin.BlockShufflePlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.block.Biome;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 
-import java.util.List;
-import java.util.Locale;
+import java.lang.reflect.Array;
+import java.util.*;
 
-public class CommandFBP_plugin_commands implements CommandExecutor {
+public class CommandFBP_plugin_commands implements CommandExecutor{
 
     BlockShufflePlugin blockShufflePlugin;
 
@@ -38,35 +35,96 @@ public class CommandFBP_plugin_commands implements CommandExecutor {
                 sender.sendMessage(ChatColor.ITALIC + "" +
                         "fbp_plugin_commands locate [biomes] - shows coordinates of the closest [biomes]");
             }
-            else if (args[0].equals("objectiveInfo")){                                                                  //ObjectiveInfo
+            else if (args[0].equals("objectiveInfo")){
 
-                sender.sendMessage(ChatColor.DARK_RED + "Item to obtain: " + blockShufflePlugin.playersGoals.get(sender));
+                if (blockShufflePlugin.playersGoals.get(sender) == null) {
+                    sender.sendMessage(ChatColor.RED + "You don't have any item to obtain yet");
+                    return true;
+                }
+                if (blockShufflePlugin.isDone.get(sender)){
+                    sender.sendMessage(ChatColor.RED + "You have already obtained your item");
+                    return true;
+                }
+
+                sender.sendMessage(ChatColor.YELLOW + "Item to obtain: " + blockShufflePlugin.playersGoals.get(sender));
 
                 int tierLevel = 1;
-                for (int i = 0; i < blockShufflePlugin.allPossibleItems.size(); i++){
+                for (int i = 0; i < blockShufflePlugin.allPossibleItems.size(); i++) {
 
-                    for (int j = 0; j < blockShufflePlugin.allPossibleItems.get(i).size() ; j++) {
+                    for (int j = 0; j < blockShufflePlugin.allPossibleItems.get(i).size(); j++) {
 
-                        if (blockShufflePlugin.allPossibleItems.get(i).contains(blockShufflePlugin.playersGoals.get(sender)))
-                        {
-                        sender.sendMessage(ChatColor.DARK_RED + "Tier: " + tierLevel +
-                                "\nId in tier list: " + blockShufflePlugin.allPossibleItems.get(i).
-                                indexOf(blockShufflePlugin.playersGoals.get(sender)));
-                        break;
+                        if (blockShufflePlugin.allPossibleItems.get(i).contains(blockShufflePlugin.playersGoals.get(sender))) {
+                            sender.sendMessage(ChatColor.YELLOW + "Tier: " + tierLevel +
+                                    "\nId in tier list: " + blockShufflePlugin.allPossibleItems.get(i).
+                                    indexOf(blockShufflePlugin.playersGoals.get(sender)));
+                            break;
                         }
                     }
                     tierLevel++;
                 }
+                return true;
+
+
+
             //TODO ZNAJDZ SPOSOB BY INFO O LOKALIZACJI DAWAC DO PLEYERA
-            }else if (args[0].equals("locatebiome")){
+            }else if (args[0].equals("locate")){
 
                 ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
 
-                String biomes = args[1];
-                if (!Bukkit.dispatchCommand(console, "locatebiome minecraft:" + biomes.toLowerCase(Locale.ROOT))){
+                String biomes;
+                if (args[1] != null)
+                    biomes = args[1];
+                else {
+                    sender.sendMessage(ChatColor.RED + "<!> given biome is invalid");
+                    return true;
+                }
+
+                if (!Bukkit.dispatchCommand(console, "locatebiome minecraft:" + biomes.toLowerCase(Locale.ROOT)))
+                {
                     sender.sendMessage(ChatColor.RED + biomes + " does not exist");
-                }else
-                    sender.sendMessage(sender.getName() + " located " + biomes);
+                }
+                else
+                {
+                    //sender.sendMessage(sender.getName() + " located " + biomes);
+                    Set<String> uniqueBiomes = new HashSet<>();
+                    Map<String,int[]> coords = new HashMap<>();
+                    for (int i = -1000; i < 1000; i+= 100) {
+                        for (int j = -1000; j < 1000; j+= 100) {
+                            uniqueBiomes.add(((Player) sender).getWorld().getBiome(
+                                    ((Player) sender).getLocation().getBlockX() + i,
+                                    90,
+                                    ((Player) sender).getLocation().getBlockZ() + j)
+                                    .name());
+
+                            if (uniqueBiomes.contains(((Player) sender).getWorld().getBiome(
+                                    ((Player) sender).getLocation().getBlockX() + i,
+                                    90,
+                                    ((Player) sender).getLocation().getBlockZ() + j)
+                                    .name())){
+
+                                int[] tempCoords = new int[3];
+                                tempCoords[0] = ((Player) sender).getLocation().getBlockX() + i;
+                                tempCoords[1] = 90;
+                                tempCoords[2] = ((Player) sender).getLocation().getBlockZ() + j;
+                                coords.put(((Player) sender).getWorld().getBiome(
+                                        ((Player) sender).getLocation().getBlockX() + i,
+                                        90,
+                                        ((Player) sender).getLocation().getBlockZ() + j)
+                                        .name(),tempCoords);
+                            }
+                        }
+                        
+                    }
+
+                    System.out.println(uniqueBiomes);
+                    if (uniqueBiomes.contains(biomes.toUpperCase(Locale.ROOT))){
+                        sender.sendMessage(biomes.toLowerCase(Locale.ROOT) + " coordinates are: " +
+                                Arrays.toString(coords.get(biomes.toUpperCase(Locale.ROOT))));
+                        System.out.println(Arrays.toString(coords.get(biomes)));
+                    }else {
+                        sender.sendMessage(ChatColor.YELLOW + "given biome in nowhere close");
+                    }
+                }
 
             }
 

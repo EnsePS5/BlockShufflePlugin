@@ -52,12 +52,20 @@ public class TimerTask extends Thread  {
                 delay = delay - 1000;
 
                 if (minutes == 0 && seconds == 0) {
+
                     Bukkit.broadcastMessage(ChatColor.DARK_RED + "" + ChatColor.BOLD + "" + ChatColor.ITALIC + "Time's up!");
+                    System.out.println(blockShufflePlugin.currentPlayers);
 
                     for (Player player : blockShufflePlugin.currentPlayers) {
 
-                        if (!blockShufflePlugin.isDone.get(player)) {
+                        System.out.println(player);
 
+                        if (blockShufflePlugin.isDone.get(player)) {
+                            System.out.println(player.getDisplayName() + " wins!");
+                            player.sendTitle((ChatColor.DARK_RED + "" + ChatColor.BOLD + "TIME'S UP!"), "Your objective is fulfilled", 5, 60, 15);
+                        }else {
+
+                            System.out.println(player.getDisplayName() + " lost!");
                             player.sendTitle((ChatColor.DARK_RED + "" + ChatColor.BOLD + "TIME'S UP!"), "-1 point", 5, 60, 15);
                             player.playSound(player.getLocation(),Sound.ENTITY_WITCH_DEATH,.6f,.6f);
 
