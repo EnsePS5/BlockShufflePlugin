@@ -77,13 +77,14 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                 Material.PORKCHOP,Material.COOKED_PORKCHOP,Material.BEEF,Material.COOKED_BEEF,Material.MUTTON,Material.COOKED_MUTTON,           //FOOD
                 Material.CHICKEN,Material.COOKED_CHICKEN,Material.COD,Material.COOKED_COD,Material.SALMON,Material.COOKED_SALMON,Material.APPLE,
                 Material.SUGAR,Material.EGG,Material.BREAD,Material.HAY_BLOCK,Material.COCOA_BEANS,Material.PUMPKIN,Material.MELON,Material.CARROT,
-                Material.BEETROOT,Material.BROWN_MUSHROOM,Material.RED_MUSHROOM,
+                Material.BEETROOT,Material.BROWN_MUSHROOM,Material.RED_MUSHROOM,Material.WHEAT,
                 Material.BONE,Material.BONE_MEAL,Material.ROTTEN_FLESH,Material.STRING,Material.GUNPOWDER,Material.ENDER_PEARL,                 //MONSTER AND SPECIAL ANIMAL LOOT
                 Material.LEATHER,Material.RABBIT_HIDE,Material.INK_SAC,
                 Material.WHEAT_SEEDS,Material.DANDELION,Material.POPPY,Material.CORNFLOWER,Material.OXEYE_DAISY,Material.LILY_OF_THE_VALLEY,    //FLOWERS
                 Material.ORANGE_TULIP,Material.PINK_TULIP,Material.RED_TULIP,Material.WHITE_TULIP,Material.ALLIUM,Material.BLUE_ORCHID,
                 Material.SUNFLOWER,Material.LILAC,Material.ROSE_BUSH,Material.PEONY,Material.LILY_PAD,Material.CLAY_BALL,Material.SUGAR_CANE,
                 Material.OAK_SAPLING,Material.BIRCH_SAPLING,Material.SPRUCE_SAPLING,Material.DARK_OAK_SAPLING,Material.JUNGLE_SAPLING,Material.CACTUS,
+                Material.BAMBOO,
                 Material.BLACK_WOOL,Material.WHITE_WOOL,Material.BLUE_WOOL,Material.BROWN_WOOL,Material.CYAN_WOOL,Material.GRAY_WOOL,           //WOOLS
                 Material.GREEN_WOOL,Material.LIGHT_BLUE_WOOL,Material.LIGHT_GRAY_WOOL,Material.LIME_WOOL,Material.MAGENTA_WOOL,
                 Material.ORANGE_WOOL,Material.PINK_WOOL,Material.PURPLE_WOOL,Material.RED_WOOL,Material.YELLOW_WOOL,
@@ -94,7 +95,7 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                 Material.DARK_OAK_LOG,Material.DARK_OAK_DOOR,Material.DARK_OAK_BUTTON,Material.DARK_OAK_FENCE,Material.DARK_OAK_FENCE_GATE,Material.DARK_OAK_PLANKS,
                 Material.OAK_SIGN,Material.BIRCH_SIGN,Material.SPRUCE_SIGN,Material.JUNGLE_SIGN,Material.DARK_OAK_SIGN,                         //SIGNS
                 Material.CRAFTING_TABLE,Material.FURNACE,Material.CHEST,Material.BARREL,Material.GLASS,Material.GLASS_PANE,                     //SPECIAL BLOCKS / GLASS
-                Material.PAPER,Material.BRICKS,Material.BRICK
+                Material.PAPER,Material.BRICKS,Material.BRICK,Material.SCAFFOLDING
                 );
 
         List<Material> tierII = Arrays.asList(Material.IRON_DOOR,Material.IRON_TRAPDOOR,Material.TNT,Material.MINECART,
@@ -111,14 +112,15 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                 Material.PINK_CONCRETE_POWDER,Material.PURPLE_CONCRETE_POWDER,Material.RED_CONCRETE_POWDER,Material.YELLOW_CONCRETE_POWDER,
                 Material.IRON_AXE,Material.IRON_HOE,Material.IRON_PICKAXE,Material.IRON_SHOVEL,Material.IRON_SWORD,                             //Tools
                 Material.SHEARS,Material.FLINT_AND_STEEL,Material.GOLDEN_AXE,Material.GOLDEN_PICKAXE,Material.GOLDEN_SHOVEL,
-                Material.GOLDEN_SWORD,Material.GOLDEN_HOE,Material.TERRACOTTA,Material.WHITE_GLAZED_TERRACOTTA);
+                Material.GOLDEN_SWORD,Material.GOLDEN_HOE,Material.TERRACOTTA,Material.WHITE_GLAZED_TERRACOTTA,
+                Material.IRON_CHESTPLATE,Material.IRON_LEGGINGS,Material.IRON_BOOTS,Material.IRON_HELMET,Material.SHIELD,Material.IRON_BLOCK    //Iron Armour
+        );
 
         List<Material> tierIII = Arrays.asList(Material.OBSIDIAN,Material.NETHERRACK, Material.SOUL_SAND,Material.SOUL_SOIL,Material.BONE_BLOCK,//Nether Blocks
                 Material.GOLD_BLOCK,Material.ANVIL,Material.BLAZE_POWDER,Material.BLAZE_ROD,Material.QUARTZ,Material.GLOWSTONE,
                 Material.BASALT, Material.BLACKSTONE,
                 Material.DARK_OAK_LEAVES,Material.OAK_LEAVES,Material.BIRCH_LEAVES,Material.JUNGLE_LEAVES,Material.SPRUCE_LEAVES,               //LEAVES
                 Material.ENCHANTED_BOOK,
-                Material.IRON_CHESTPLATE,Material.IRON_LEGGINGS,Material.IRON_BOOTS,Material.IRON_HELMET,Material.SHIELD,Material.IRON_BLOCK,   //Iron armor
                 Material.GOLDEN_CHESTPLATE,Material.GOLDEN_LEGGINGS,Material.GOLDEN_BOOTS,Material.GOLDEN_HELMET,Material.GOLD_BLOCK);          //Gold armor
 
         allPossibleItems.add(tierI);

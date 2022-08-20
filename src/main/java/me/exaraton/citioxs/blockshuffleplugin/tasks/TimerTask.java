@@ -8,6 +8,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+
 
 public class TimerTask extends Thread  {
 
@@ -18,8 +20,8 @@ public class TimerTask extends Thread  {
         this.start();
     }
 
-    private int timet = 6 * 60;
-    public boolean isRunning = false;
+    private int timet = (int)(.25f * 60);
+    public boolean isRunning;
     public long delay = timet * 1000L;
 
     @Override
@@ -53,19 +55,20 @@ public class TimerTask extends Thread  {
 
                 if (minutes == 0 && seconds == 0) {
 
-                    Bukkit.broadcastMessage(ChatColor.DARK_RED + "" + ChatColor.BOLD + "" + ChatColor.ITALIC + "Time's up!");
-                    System.out.println(blockShufflePlugin.currentPlayers);
+                    if (blockShufflePlugin.currentPlayers.isEmpty()){
+                        blockShufflePlugin.currentPlayers.addAll(blockShufflePlugin.getServer().getOnlinePlayers());
+                    }
 
+                    Bukkit.broadcastMessage(ChatColor.DARK_RED + "" + ChatColor.BOLD + "" + ChatColor.ITALIC + "Time's up!");
+                    System.out.println("tutaj nic");
                     for (Player player : blockShufflePlugin.currentPlayers) {
 
-                        System.out.println(player);
 
                         if (blockShufflePlugin.isDone.get(player)) {
-                            System.out.println(player.getDisplayName() + " wins!");
+                            System.out.println("tutaj win");
                             player.sendTitle((ChatColor.DARK_RED + "" + ChatColor.BOLD + "TIME'S UP!"), "Your objective is fulfilled", 5, 60, 15);
                         }else {
-
-                            System.out.println(player.getDisplayName() + " lost!");
+                            System.out.println("tutaj lose");
                             player.sendTitle((ChatColor.DARK_RED + "" + ChatColor.BOLD + "TIME'S UP!"), "-1 point", 5, 60, 15);
                             player.playSound(player.getLocation(),Sound.ENTITY_WITCH_DEATH,.6f,.6f);
 
@@ -88,7 +91,7 @@ public class TimerTask extends Thread  {
                 return;
             }
         }
-        while (delay != 0 && isRunning);
+        while (delay != -1 && isRunning);
 
         Bukkit.broadcastMessage(ChatColor.DARK_RED + "" + ChatColor.BOLD + "" + ChatColor.ITALIC + "Time's up!");
     }

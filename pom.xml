@@ -6,7 +6,7 @@
 
     <groupId>me.exaraton.citioxs</groupId>
     <artifactId>BlockShufflePlugin</artifactId>
-    <version>1.9.2_BASIC_LOCATECOMMAND_HOTFIX_ONRESPAWNEVENT</version>
+    <version>1.9.4.1_BASIC_LOCATECOMMAND_HOTFIX_COUNTDOWN</version>
     <packaging>jar</packaging>
 
     <name>BlockShufflePlugin</name>
