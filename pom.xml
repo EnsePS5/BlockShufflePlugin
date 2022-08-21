@@ -6,7 +6,7 @@
 
     <groupId>me.exaraton.citioxs</groupId>
     <artifactId>BlockShufflePlugin</artifactId>
-    <version>1.10.0_COMPASSLOCATION</version>
+    <version>1.10.2.1_COMPASSLOCATION_DENSITYUPDATE_COMMANDSTWEAK</version>
     <packaging>jar</packaging>
 
     <name>BlockShufflePlugin</name>

@@ -30,6 +30,8 @@ public class CommandFBP_plugin_commands implements CommandExecutor{
                 sender.sendMessage(ChatColor.ITALIC +
                         "runbs restart - restarts the game");
                 sender.sendMessage(ChatColor.ITALIC +
+                        "runbs terminate - terminates the game");
+                sender.sendMessage(ChatColor.ITALIC +
                         "fbp_plugin_commands - shows available commands to player");
                 sender.sendMessage(ChatColor.ITALIC +
                         "fbp_plugin_commands objectiveInfo - shows details about your current objective");
@@ -86,8 +88,8 @@ public class CommandFBP_plugin_commands implements CommandExecutor{
                     //sender.sendMessage(sender.getName() + " located " + biomes);
                     Set<String> uniqueBiomes = new HashSet<>();
                     Map<String,int[]> coords = new HashMap<>();
-                    for (int i = -1500; i < 1500; i+= 100) {
-                        for (int j = -1500; j < 1500; j+= 100) {
+                    for (int i = -1500; i < 1500; i+= 25) {
+                        for (int j = -1500; j < 1500; j+= 25) {
 
                             String currentlySelectedBiome = ((Player) sender).getWorld().getBiome(
                                             ((Player) sender).getLocation().getBlockX() + i,
@@ -103,19 +105,15 @@ public class CommandFBP_plugin_commands implements CommandExecutor{
                             if (uniqueBiomes.contains(currentlySelectedBiome)){
                                 double currentlyMinDistance =
                                         Math.sqrt(
-                                                Math.pow((((Player) sender).getLocation().getBlockX() - coords.get(currentlySelectedBiome)[0]),
-                                                        ((Player) sender).getLocation().getBlockX() - coords.get(currentlySelectedBiome)[0])
+                                                Math.pow((((Player) sender).getLocation().getBlockX() - coords.get(currentlySelectedBiome)[0]),2)
                                                         +
-                                                        Math.pow((((Player) sender).getLocation().getBlockZ() - coords.get(currentlySelectedBiome)[2]),
-                                                                ((Player) sender).getLocation().getBlockZ() - coords.get(currentlySelectedBiome)[2])
+                                                        Math.pow((((Player) sender).getLocation().getBlockZ() - coords.get(currentlySelectedBiome)[2]),2)
                                         );
                                 double candidateToMinDistance =
                                         Math.sqrt(
-                                                Math.pow((((Player) sender).getLocation().getBlockX() - tempCoords[0]),
-                                                        ((Player) sender).getLocation().getBlockX() - tempCoords[0])
+                                                Math.pow((((Player) sender).getLocation().getBlockX() - tempCoords[0]),2)
                                                         +
-                                                        Math.pow((((Player) sender).getLocation().getBlockZ() - tempCoords[2]),
-                                                                ((Player) sender).getLocation().getBlockZ() - tempCoords[2])
+                                                        Math.pow((((Player) sender).getLocation().getBlockZ() - tempCoords[2]),2)
                                         );
 
                                 if (candidateToMinDistance < currentlyMinDistance){
@@ -137,8 +135,14 @@ public class CommandFBP_plugin_commands implements CommandExecutor{
                                 coords.get(biomes.toUpperCase(Locale.ROOT))[2]);
 
                         ((Player) sender).setCompassTarget(compassTargetLocation);
+                        sender.sendMessage(ChatColor.YELLOW + biomes.toLowerCase(Locale.ROOT) + " is " +
+                                (int)(Math.sqrt(
+                                        Math.pow((((Player) sender).getLocation().getBlockX() - coords.get(biomes.toUpperCase(Locale.ROOT))[0]),2)
+                                                +
+                                                Math.pow((((Player) sender).getLocation().getBlockZ() - coords.get(biomes.toUpperCase(Locale.ROOT))[2]),2)
+                                )) + " blocks away from you");
 
-                        System.out.println(Arrays.toString(coords.get(biomes)));
+                        System.out.println(Arrays.toString(coords.get(biomes.toUpperCase(Locale.ROOT))));
                     }else {
                         sender.sendMessage(ChatColor.YELLOW + "given biome is out of range");
                     }

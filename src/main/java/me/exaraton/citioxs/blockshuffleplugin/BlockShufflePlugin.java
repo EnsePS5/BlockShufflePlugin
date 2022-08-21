@@ -3,6 +3,7 @@ package me.exaraton.citioxs.blockshuffleplugin;
 import me.exaraton.citioxs.blockshuffleplugin.commands.CommandFBP_plugin_commands;
 import me.exaraton.citioxs.blockshuffleplugin.commands.CommandFBP_plugin_commands_tabCompletion;
 import me.exaraton.citioxs.blockshuffleplugin.commands.CommandRunBS;
+import me.exaraton.citioxs.blockshuffleplugin.commands.CommandRunBS_tabCompletion;
 import me.exaraton.citioxs.blockshuffleplugin.tasks.TimerTask;
 import org.bukkit.*;
 import org.bukkit.command.ConsoleCommandSender;
@@ -52,13 +53,25 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
         COMPLETED_ROUNDS = 0;
     }
 
+    //Compass
+    private ItemStack compassToAdd;
+
     @Override
     public void onEnable() {
         // Plugin startup logic
 
         System.out.println("Initializing " + BlockShufflePlugin.class.getName());
 
+        //Commands dispatch settings
         console = Bukkit.getServer().getConsoleSender();
+
+        //Compass biomes searcher settings
+        compassToAdd = new ItemStack(Material.COMPASS);
+        compassToAdd.addUnsafeEnchantment(Enchantment.LUCK,1);
+        final ItemMeta itemMeta = compassToAdd.getItemMeta();
+        itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        itemMeta.setDisplayName(ChatColor.ITALIC + "Biomes searcher");
+        compassToAdd.setItemMeta(itemMeta);
 
         //IN PROGRESS -> MAKE TIER LIST TODO CONTINUE
         List<Material> tierI = Arrays.asList(Material.DIRT,Material.COBBLESTONE,Material.CLAY,Material.GRAVEL,Material.SAND,Material.COARSE_DIRT,//Basic blocks
@@ -134,6 +147,7 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
         //REJERSTRACJA KOMEND I EVENTOW
         getServer().getPluginManager().registerEvents(this,this);
         Objects.requireNonNull(this.getCommand("runBS")).setExecutor(new CommandRunBS(this));
+        Objects.requireNonNull(this.getCommand("runBS")).setTabCompleter(new CommandRunBS_tabCompletion());
         System.out.println("Added runBS");
         Objects.requireNonNull(this.getCommand("FBP_plugin_commands")).setExecutor(new CommandFBP_plugin_commands(this));
         Objects.requireNonNull(this.getCommand("FBP_plugin_commands")).setTabCompleter(new CommandFBP_plugin_commands_tabCompletion());
@@ -170,7 +184,7 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
     @EventHandler
     public void onDropItem(PlayerDropItemEvent playerDropItemEvent){
 
-        if (playerDropItemEvent.getItemDrop().getItemStack().isSimilar(new ItemStack(Material.COMPASS)))
+        if (playerDropItemEvent.getItemDrop().getItemStack().isSimilar(compassToAdd))
             playerDropItemEvent.setCancelled(true);
 
     }
@@ -266,6 +280,9 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                         player.playSound(player,Sound.ENTITY_VEX_HURT,.4f,.6f);
                     }
 
+                    //compass is being deleted
+                    player.getInventory().remove(compassToAdd);
+
                 }
 
                 firstPlayer.playSound(firstPlayer.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 1, 1);
@@ -331,12 +348,6 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                 scores.add(objective.getScore(ChatColor.YELLOW + player.getDisplayName() + ChatColor.GOLD + " -> "));
 
                 //Adding compass to inventory and setting enchants invisibility
-                ItemStack compassToAdd = new ItemStack(Material.COMPASS);
-                compassToAdd.addUnsafeEnchantment(Enchantment.LUCK,1);
-                final ItemMeta itemMeta = compassToAdd.getItemMeta();
-                itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-                compassToAdd.setItemMeta(itemMeta);
-
                 player.getInventory().addItem(compassToAdd);
             }
 
@@ -405,6 +416,25 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
     public void restart(){
         timerTask.interrupt();
         COMPLETED_ROUNDS = 0;
+
+        for (Player player : currentPlayers){
+            player.getInventory().remove(compassToAdd);
+        }
+
         playViaCommand();
+    }
+
+    public void stop() {
+
+        if (this.timerTask != null)
+            timerTask.interrupt();
+
+        COMPLETED_ROUNDS = 0;
+
+        for (Player player : currentPlayers){
+            player.getInventory().remove(compassToAdd);
+        }
+
+        HAS_GAME_ENDED = true;
     }
 }

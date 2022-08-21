@@ -23,9 +23,14 @@ public class CommandRunBS implements CommandExecutor{
                 BlockShufflePlugin.RESET_ROUNDS_STATS();
                 blockShufflePlugin.playViaCommand();
             }else if (args[0].equals("setTime") && Integer.parseInt(args[1]) >= 0){
-                blockShufflePlugin.timerTask.changeTime(Integer.parseInt(args[1]));
+
+                if (blockShufflePlugin.timerTask != null)
+                    blockShufflePlugin.timerTask.changeTime(Integer.parseInt(args[1]));
+
             }else if (args[0].equals("restart")){
                 blockShufflePlugin.restart();
+            }else if (args[0].equals("terminate")){
+                blockShufflePlugin.stop();
             }else
                 sender.sendMessage(ChatColor.DARK_RED + "given command is incorrect");
         }

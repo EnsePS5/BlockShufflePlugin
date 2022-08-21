@@ -24,13 +24,13 @@ public class CommandFBP_plugin_commands_tabCompletion implements TabCompleter {
 
         if (args[0].equals("locate") && args.length == 2){
 
-            String startsWith = args[1];
+            String contains = args[1];
 
             Biome[] allBiomes = Biome.values();
 
             for (Biome biome : allBiomes){
                 if (!biome.name().equals("CUSTOM")) {
-                    if (biome.name().toLowerCase(Locale.ROOT).startsWith(startsWith))
+                    if (biome.name().toLowerCase(Locale.ROOT).contains(contains))
                         result.add(biome.name().toLowerCase(Locale.ROOT));
                 }
             }
@@ -38,7 +38,7 @@ public class CommandFBP_plugin_commands_tabCompletion implements TabCompleter {
             return result;
         }
 
-        return null;
+        return result;
 
     }
 }
