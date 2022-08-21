@@ -78,7 +78,8 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
         List<Material> tierI = Arrays.asList(Material.DIRT,Material.COBBLESTONE,Material.CLAY,Material.GRAVEL,Material.SAND,Material.COARSE_DIRT,//Basic blocks
                 Material.WOODEN_AXE,Material.WOODEN_HOE,Material.WOODEN_PICKAXE,Material.WOODEN_SHOVEL,Material.WOODEN_SWORD,                   //TOOLS
                 Material.STONE_AXE,Material.STONE_HOE,Material.STONE_PICKAXE,Material.STONE_SHOVEL,Material.STONE_SWORD,
-                Material.BOW,Material.BOWL,Material.FISHING_ROD,Material.LEVER,Material.STONE_BUTTON,                                           //RÓŻNE
+                Material.BOW,Material.BOWL,Material.FISHING_ROD,Material.LEVER,Material.STONE_BUTTON,Material.SNOWBALL,Material.SNOW_BLOCK,     //RÓŻNE
+                Material.LADDER,Material.STONE_BRICKS,Material.STONE_BUTTON,
                 Material.ANDESITE,Material.ANDESITE_SLAB,Material.ANDESITE_STAIRS,Material.ANDESITE_WALL,Material.POLISHED_ANDESITE,            //SOTNE VARIANTS
                 Material.DIORITE,Material.DIORITE_SLAB,Material.DIORITE_STAIRS,Material.DIORITE_WALL,Material.POLISHED_DIORITE,
                 Material.GRANITE,Material.GRANITE_SLAB,Material.GRANITE_STAIRS,Material.GRANITE_WALL,Material.POLISHED_GRANITE,
@@ -89,8 +90,9 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                 Material.CHICKEN,Material.COOKED_CHICKEN,Material.COD,Material.COOKED_COD,Material.SALMON,Material.COOKED_SALMON,Material.APPLE,
                 Material.SUGAR,Material.EGG,Material.BREAD,Material.HAY_BLOCK,Material.COCOA_BEANS,Material.PUMPKIN,Material.MELON,Material.CARROT,
                 Material.BEETROOT,Material.BROWN_MUSHROOM,Material.RED_MUSHROOM,Material.WHEAT,Material.RABBIT,Material.COOKED_RABBIT,
+                Material.CARROT,Material.POTATO,Material.MELON_SLICE,Material.MELON_SEEDS,Material.PUMPKIN_SEEDS,
                 Material.BONE,Material.BONE_MEAL,Material.ROTTEN_FLESH,Material.STRING,Material.GUNPOWDER,Material.ENDER_PEARL,                 //MONSTER AND SPECIAL ANIMAL LOOT
-                Material.LEATHER,Material.RABBIT_HIDE,Material.INK_SAC,Material.FEATHER,Material.ARROW,
+                Material.LEATHER,Material.RABBIT_HIDE,Material.INK_SAC,Material.FEATHER,Material.ARROW,Material.SPIDER_EYE,
                 Material.WHEAT_SEEDS,Material.DANDELION,Material.POPPY,Material.CORNFLOWER,Material.OXEYE_DAISY,Material.LILY_OF_THE_VALLEY,    //FLOWERS
                 Material.ORANGE_TULIP,Material.PINK_TULIP,Material.RED_TULIP,Material.WHITE_TULIP,Material.ALLIUM,Material.BLUE_ORCHID,
                 Material.SUNFLOWER,Material.LILAC,Material.ROSE_BUSH,Material.PEONY,Material.LILY_PAD,Material.CLAY_BALL,Material.SUGAR_CANE,
@@ -111,10 +113,13 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                 );
 
         List<Material> tierII = Arrays.asList(Material.IRON_DOOR,Material.IRON_TRAPDOOR,Material.TNT,Material.MINECART,
-                Material.LAVA_BUCKET,Material.WATER_BUCKET,Material.COD_BUCKET,Material.SALMON_BUCKET,                                          //Buckets
+                Material.CHEST_MINECART,Material.FURNACE_MINECART,Material.CHAIN,
+                Material.LAVA_BUCKET,Material.WATER_BUCKET,Material.COD_BUCKET,Material.SALMON_BUCKET,Material.MILK_BUCKET,Material.HOPPER,     //Buckets
                 Material.DIAMOND,Material.REDSTONE,Material.REDSTONE_BLOCK,Material.RAW_GOLD,                                                   //Deep ores
                 Material.GOLD_INGOT,Material.GOLD_NUGGET,Material.COAL_BLOCK,Material.LAPIS_LAZULI,Material.TUFF,
+                Material.STONE_BRICK_SLAB,Material.STONE_BRICK_STAIRS,Material.STONE_BRICK_WALL,Material.CHISELED_STONE_BRICKS,
                 Material.BOOKSHELF,Material.RAIL,Material.RAW_IRON_BLOCK,Material.RAW_COPPER_BLOCK,Material.TRAPPED_CHEST,                      //Different ones
+                Material.FLOWER_POT,Material.ITEM_FRAME,Material.CARVED_PUMPKIN,Material.JACK_O_LANTERN,Material.COBWEB,
                 Material.BLACK_CONCRETE,Material.WHITE_CONCRETE,Material.BLUE_CONCRETE,Material.BROWN_CONCRETE,Material.CYAN_CONCRETE,          //Concrete
                 Material.GRAY_CONCRETE,Material.GREEN_CONCRETE,Material.LIGHT_BLUE_CONCRETE,Material.LIGHT_GRAY_CONCRETE,Material.LIME_CONCRETE,
                 Material.MAGENTA_CONCRETE,Material.ORANGE_CONCRETE,Material.PINK_CONCRETE,Material.PURPLE_CONCRETE,Material.RED_CONCRETE,Material.YELLOW_CONCRETE,
@@ -125,6 +130,7 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                 Material.IRON_AXE,Material.IRON_HOE,Material.IRON_PICKAXE,Material.IRON_SHOVEL,Material.IRON_SWORD,                             //Tools
                 Material.SHEARS,Material.FLINT_AND_STEEL,Material.GOLDEN_AXE,Material.GOLDEN_PICKAXE,Material.GOLDEN_SHOVEL,
                 Material.GOLDEN_SWORD,Material.GOLDEN_HOE,Material.TERRACOTTA,Material.WHITE_GLAZED_TERRACOTTA,
+                Material.GLASS_BOTTLE,Material.POTION,Material.COOKIE,
                 Material.IRON_CHESTPLATE,Material.IRON_LEGGINGS,Material.IRON_BOOTS,Material.IRON_HELMET,Material.SHIELD,Material.IRON_BLOCK,   //Iron Armour
                 Material.HONEYCOMB,Material.FLETCHING_TABLE,Material.SMITHING_TABLE,
                 Material.WHITE_BED,Material.BLACK_BED,Material.BLUE_BED,Material.BROWN_BED,Material.CYAN_BED,Material.GRAY_BED,Material.GREEN_BED,//Beds
@@ -136,7 +142,8 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                 Material.GOLD_BLOCK,Material.ANVIL,Material.BLAZE_POWDER,Material.BLAZE_ROD,Material.QUARTZ,Material.GLOWSTONE,
                 Material.BASALT, Material.BLACKSTONE,
                 Material.DARK_OAK_LEAVES,Material.OAK_LEAVES,Material.BIRCH_LEAVES,Material.JUNGLE_LEAVES,Material.SPRUCE_LEAVES,Material.ACACIA_LEAVES,//LEAVES
-                Material.ENCHANTED_BOOK,Material.CANDLE,Material.SLIME_BALL,Material.GOLDEN_APPLE,
+                Material.ENCHANTED_BOOK,Material.CANDLE,Material.SLIME_BALL,Material.GOLDEN_APPLE,Material.FERMENTED_SPIDER_EYE,                //Strange ones
+                Material.HOPPER_MINECART,Material.JUKEBOX,Material.PISTON,
                 Material.GOLDEN_CHESTPLATE,Material.GOLDEN_LEGGINGS,Material.GOLDEN_BOOTS,Material.GOLDEN_HELMET,Material.GOLD_BLOCK);          //Gold armor
 
         allPossibleItems.add(tierI);
