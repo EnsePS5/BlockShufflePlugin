@@ -11,6 +11,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -38,7 +39,7 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
     public Objective objective;
 
     public Map<Player, Boolean> isDone = new HashMap<>();
-    public boolean hasSomeoneDied = false;
+    private Map<Player, Boolean> hasSomeoneDied = new HashMap<>();
 
     public me.exaraton.citioxs.blockshuffleplugin.tasks.TimerTask timerTask;
 
@@ -198,8 +199,8 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
     }
 
     @EventHandler
-    public void onPlayerRespawn(PlayerRespawnEvent playerRespawnEvent){
-        hasSomeoneDied = true;
+    public void onPlayerDeath(PlayerDeathEvent playerDeathEvent){
+        hasSomeoneDied.put(playerDeathEvent.getEntity().getPlayer(), true);
     }
 
     @EventHandler
@@ -208,6 +209,14 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
         ItemStack item = playerPickupItemEvent.getItem().getItemStack();
 
         if (!currentPlayers.isEmpty()){
+
+            if (hasSomeoneDied.get(playerPickupItemEvent.getPlayer())) {
+                Bukkit.dispatchCommand(console,
+                        "effect give " + playerPickupItemEvent.getPlayer().getDisplayName() +
+                                " minecraft:night_vision 2520 1 true");
+
+                hasSomeoneDied.put(playerPickupItemEvent.getPlayer(),false);
+            }
 
                 if ((playersGoals.get(playerPickupItemEvent.getPlayer()) == item.getType() && !isDone.get(playerPickupItemEvent.getPlayer()))){
                     isDone.put(playerPickupItemEvent.getPlayer(),true);
@@ -349,6 +358,9 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
                 //Adding compass to inventory and setting enchants invisibility
                 player.getInventory().addItem(compassToAdd);
+
+                //Setting up hasSomeoneDied Map
+                hasSomeoneDied.put(player,false);
             }
 
             int index = 0;
@@ -414,7 +426,10 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
         }
     }
     public void restart(){
-        timerTask.interrupt();
+
+        if (this.timerTask != null)
+            timerTask.interrupt();
+
         COMPLETED_ROUNDS = 0;
 
         for (Player player : currentPlayers){

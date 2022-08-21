@@ -21,12 +21,6 @@ public class CommandRunBS_tabCompletion implements TabCompleter {
             return result;
         }
 
-        if (args[0].equals("setTime") && args.length == 2){
-            result.add("0");
-            result.add("12000");
-            return result;
-        }
-
         return result;
     }
 }
