@@ -30,6 +30,16 @@ public class TimerTask extends Thread  {
         isRunning = true;
 
         do {
+
+            if (blockShufflePlugin.hasSomeoneDied){
+                blockShufflePlugin.hasSomeoneDied = false;
+
+                Bukkit.dispatchCommand(blockShufflePlugin.console,
+                        "effect give @a minecraft:night_vision 2520 1 true");
+
+            }
+
+
             int minutes = timet/60;
             int seconds = timet%60;
 

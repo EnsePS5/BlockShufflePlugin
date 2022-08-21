@@ -11,4 +11,3 @@ commands:
   FBP_plugin_commands:
     description: shows available commands to player. Possible arguments - objectiveInfo
     usage: /<command>
-#TODO MAKE ARGUMENT OCCUR IN TAB (For now I think it is impossible)

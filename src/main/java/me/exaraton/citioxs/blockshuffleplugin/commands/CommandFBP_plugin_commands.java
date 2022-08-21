@@ -3,6 +3,7 @@ package me.exaraton.citioxs.blockshuffleplugin.commands;
 import me.exaraton.citioxs.blockshuffleplugin.BlockShufflePlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.block.Biome;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
@@ -64,9 +65,6 @@ public class CommandFBP_plugin_commands implements CommandExecutor{
                 }
                 return true;
 
-
-
-            //TODO ZNAJDZ SPOSOB BY INFO O LOKALIZACJI DAWAC DO PLEYERA
             }else if (args[0].equals("locate")){
 
                 ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
@@ -88,41 +86,61 @@ public class CommandFBP_plugin_commands implements CommandExecutor{
                     //sender.sendMessage(sender.getName() + " located " + biomes);
                     Set<String> uniqueBiomes = new HashSet<>();
                     Map<String,int[]> coords = new HashMap<>();
-                    for (int i = -1000; i < 1000; i+= 100) {
-                        for (int j = -1000; j < 1000; j+= 100) {
-                            uniqueBiomes.add(((Player) sender).getWorld().getBiome(
-                                    ((Player) sender).getLocation().getBlockX() + i,
-                                    90,
-                                    ((Player) sender).getLocation().getBlockZ() + j)
-                                    .name());
+                    for (int i = -1500; i < 1500; i+= 100) {
+                        for (int j = -1500; j < 1500; j+= 100) {
 
-                            if (uniqueBiomes.contains(((Player) sender).getWorld().getBiome(
-                                    ((Player) sender).getLocation().getBlockX() + i,
-                                    90,
-                                    ((Player) sender).getLocation().getBlockZ() + j)
-                                    .name())){
+                            String currentlySelectedBiome = ((Player) sender).getWorld().getBiome(
+                                            ((Player) sender).getLocation().getBlockX() + i,
+                                            90,
+                                            ((Player) sender).getLocation().getBlockZ() + j)
+                                    .name();
 
-                                int[] tempCoords = new int[3];
-                                tempCoords[0] = ((Player) sender).getLocation().getBlockX() + i;
-                                tempCoords[1] = 90;
-                                tempCoords[2] = ((Player) sender).getLocation().getBlockZ() + j;
-                                coords.put(((Player) sender).getWorld().getBiome(
-                                        ((Player) sender).getLocation().getBlockX() + i,
-                                        90,
-                                        ((Player) sender).getLocation().getBlockZ() + j)
-                                        .name(),tempCoords);
+                            int[] tempCoords = new int[3];
+                            tempCoords[0] = ((Player) sender).getLocation().getBlockX() + i;
+                            tempCoords[1] = 90;
+                            tempCoords[2] = ((Player) sender).getLocation().getBlockZ() + j;
+
+                            if (uniqueBiomes.contains(currentlySelectedBiome)){
+                                double currentlyMinDistance =
+                                        Math.sqrt(
+                                                Math.pow((((Player) sender).getLocation().getBlockX() - coords.get(currentlySelectedBiome)[0]),
+                                                        ((Player) sender).getLocation().getBlockX() - coords.get(currentlySelectedBiome)[0])
+                                                        +
+                                                        Math.pow((((Player) sender).getLocation().getBlockZ() - coords.get(currentlySelectedBiome)[2]),
+                                                                ((Player) sender).getLocation().getBlockZ() - coords.get(currentlySelectedBiome)[2])
+                                        );
+                                double candidateToMinDistance =
+                                        Math.sqrt(
+                                                Math.pow((((Player) sender).getLocation().getBlockX() - tempCoords[0]),
+                                                        ((Player) sender).getLocation().getBlockX() - tempCoords[0])
+                                                        +
+                                                        Math.pow((((Player) sender).getLocation().getBlockZ() - tempCoords[2]),
+                                                                ((Player) sender).getLocation().getBlockZ() - tempCoords[2])
+                                        );
+
+                                if (candidateToMinDistance < currentlyMinDistance){
+                                    coords.put(currentlySelectedBiome,tempCoords);
+                                }
+
+                            }else {
+                                coords.put(currentlySelectedBiome,tempCoords);
+                                uniqueBiomes.add(currentlySelectedBiome);
                             }
                         }
-                        
                     }
-
                     System.out.println(uniqueBiomes);
                     if (uniqueBiomes.contains(biomes.toUpperCase(Locale.ROOT))){
-                        sender.sendMessage(biomes.toLowerCase(Locale.ROOT) + " coordinates are: " +
-                                Arrays.toString(coords.get(biomes.toUpperCase(Locale.ROOT))));
+
+                        Location compassTargetLocation = new Location(((Player) sender).getWorld(),
+                                coords.get(biomes.toUpperCase(Locale.ROOT))[0],
+                                coords.get(biomes.toUpperCase(Locale.ROOT))[1],
+                                coords.get(biomes.toUpperCase(Locale.ROOT))[2]);
+
+                        ((Player) sender).setCompassTarget(compassTargetLocation);
+
                         System.out.println(Arrays.toString(coords.get(biomes)));
                     }else {
-                        sender.sendMessage(ChatColor.YELLOW + "given biome in nowhere close");
+                        sender.sendMessage(ChatColor.YELLOW + "given biome is out of range");
                     }
                 }
 
