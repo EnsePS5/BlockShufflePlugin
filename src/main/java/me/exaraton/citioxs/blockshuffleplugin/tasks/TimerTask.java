@@ -75,6 +75,9 @@ public class TimerTask extends Thread  {
 
                             blockShufflePlugin.playersPoints.put(player, -1);
                             blockShufflePlugin.playersScore.get(player).setScore(blockShufflePlugin.playersScore.get(player).getScore() - 1);
+
+                            //To make obtaining item after time impossible
+                            blockShufflePlugin.isDone.clear();
                         }
                     }
 

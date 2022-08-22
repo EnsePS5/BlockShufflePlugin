@@ -30,6 +30,7 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
     public final Map<Player, Material> playersGoals = new HashMap<>();
     public final Map<Player, Integer> playersPoints = new HashMap<>();
     public final Map<Player, Score> playersScore = new HashMap<>();
+    public final Set<Player> overtimePlayers = new HashSet<>();
 
     public ArrayList<Player> currentPlayers = new ArrayList<>();
 
@@ -39,7 +40,7 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
     public Objective objective;
 
     public Map<Player, Boolean> isDone = new HashMap<>();
-    private Map<Player, Boolean> hasSomeoneDied = new HashMap<>();
+    private final Map<Player, Boolean> hasSomeoneDied = new HashMap<>();
 
     public me.exaraton.citioxs.blockshuffleplugin.tasks.TimerTask timerTask;
 
@@ -56,6 +57,9 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
     //Compass
     private ItemStack compassToAdd;
+
+    //Overtime
+    private boolean isOvertime = false;
 
     @Override
     public void onEnable() {
@@ -176,6 +180,8 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent playerJoinEvent){
+
+        //Welcome messages
         System.out.println("Player " + playerJoinEvent.getPlayer().getDisplayName() + " joined to server");
 
         playerJoinEvent.getPlayer().sendMessage(ChatColor.GREEN + "Welcome back " + playerJoinEvent.getPlayer().getDisplayName()
@@ -187,6 +193,26 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
         playerJoinEvent.setJoinMessage(ChatColor.GREEN + "" + ChatColor.BOLD +
                 playerJoinEvent.getPlayer().getDisplayName() + " joined " + getDescription().getName());
 
+
+        //When (new player/player who left game while playing) joins game while it is on
+        if (!HAS_GAME_ENDED && !currentPlayers.isEmpty() && timerTask.isRunning) {
+            hasSomeoneDied.put(playerJoinEvent.getPlayer(), false);
+            playerJoinEvent.getPlayer().setScoreboard(scoreboard);
+
+            playerJoinEvent.getPlayer().sendMessage(ChatColor.LIGHT_PURPLE + "The game is on! You will join next round!");
+        }
+
+
+
+    }
+
+    @EventHandler
+    public void onPlayerLeave(PlayerQuitEvent playerQuitEvent){
+
+        //When player leaves server
+        playerQuitEvent.setQuitMessage(ChatColor.DARK_RED + "" + ChatColor.ITALIC + playerQuitEvent.getPlayer().getDisplayName() + " left" );
+        currentPlayers.remove(playerQuitEvent.getPlayer());
+        isDone.put(playerQuitEvent.getPlayer(),true);
     }
 
     @EventHandler
@@ -198,18 +224,10 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
     }
 
     @EventHandler
-    public void onPlayerLeave(PlayerQuitEvent playerQuitEvent){
-
-        playerQuitEvent.setQuitMessage(ChatColor.DARK_RED + "" + ChatColor.ITALIC + playerQuitEvent.getPlayer().getDisplayName() + " left" );
-        currentPlayers.remove(playerQuitEvent.getPlayer());
-        isDone.put(playerQuitEvent.getPlayer(),true);
-    }
-
-    @EventHandler
     public void onPlayerDeath(PlayerDeathEvent playerDeathEvent){
         hasSomeoneDied.put(playerDeathEvent.getEntity().getPlayer(), true);
     }
-
+    //TODO LOGUJESZ SIE JAKO INNY GRACZ, DODAJ I USUN CZY LOGOWANIU DO POINETROW I MAP
     @EventHandler
     public void pickUpItem(PlayerPickupItemEvent playerPickupItemEvent){
 
@@ -227,6 +245,13 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
                 if ((playersGoals.get(playerPickupItemEvent.getPlayer()) == item.getType() && !isDone.get(playerPickupItemEvent.getPlayer()))){
                     isDone.put(playerPickupItemEvent.getPlayer(),true);
+
+                    //Only when overtime is on
+                    if (isOvertime) {
+                        if (overtimePlayers.contains(playerPickupItemEvent.getPlayer()))
+                            for (Player player : currentPlayers)
+                                isDone.put(player, true);
+                    }
 
                     Bukkit.broadcastMessage(ChatColor.GOLD + "" + ChatColor.BOLD + playerPickupItemEvent.getPlayer().getDisplayName().toUpperCase(Locale.ROOT) +
                             " OBTAINED " + playersGoals.get(playerPickupItemEvent.getPlayer()) + "!");
@@ -274,19 +299,43 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
         System.out.println(COMPLETED_ROUNDS + " -> number of completed rounds!");
 
-        //TODO LIST - CZEMU MACIEK WYGRAL MAJAC MNIEJ PKT? (Być może shadow countig)
-        if (COMPLETED_ROUNDS == 7){//END CONDITIONS
+        if (COMPLETED_ROUNDS >= 7){//END CONDITIONS
 
             Player firstPlayer = null;
             int currentMax = -8;
             for (Player player : currentPlayers){
                 if (playersPoints.get(player) > currentMax) {
+
                     currentMax = playersPoints.get(player);
                     firstPlayer = player;
+
+                    isOvertime = false;
+
+                }else if (playersPoints.get(player) == currentMax){
+
+                    overtimePlayers.add(firstPlayer);
+                    overtimePlayers.add(player);
+
+                    for (Player overtimePlayer : currentPlayers){
+
+                        assert firstPlayer != null;
+                        overtimePlayer.sendTitle(ChatColor.LIGHT_PURPLE + "OVERTIME!",
+                                firstPlayer.getDisplayName() + ChatColor.RED + " Vs " + ChatColor.WHITE + player.getDisplayName(),
+                                5,80,15);
+                        overtimePlayer.sendMessage(ChatColor.LIGHT_PURPLE + "First one to obtain item wins! Round time: " +
+                                (COMPLETED_ROUNDS < 12 ? (6 - (COMPLETED_ROUNDS-6)) : 1) + " !");
+
+                    }
+                    objective.setDisplayName(ChatColor.GOLD + "Points/" + ChatColor.LIGHT_PURPLE + "Overtime");
+
+                    isOvertime = true;
+                    break;
                 }
             }
 
-            if (firstPlayer != null) {
+            if (firstPlayer != null && !isOvertime) {
+                objective.setDisplayName(ChatColor.GOLD + "Points/" + ChatColor.YELLOW + "Final Score");
+
                 for (Player player : currentPlayers) {
                     player.sendTitle(ChatColor.GOLD + firstPlayer.getDisplayName() + " WINS!", "Congratulations!", 5, 80, 15);
 
@@ -312,11 +361,15 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
                 HAS_GAME_ENDED = true;
 
-                Bukkit.dispatchCommand(console, "gamerule logAdminCommands true");
-                Bukkit.dispatchCommand(console, "gamerule commandBlockOutput true");
-                Bukkit.dispatchCommand(console, "effect clear @a");
-                Bukkit.dispatchCommand(console, "gamerule keepInventory false");
-                Bukkit.dispatchCommand(console, "gamerule doWeatherCycle true");
+                Thread dispatch = new Thread(()-> {
+                    Bukkit.dispatchCommand(console, "gamerule logAdminCommands true");
+                    Bukkit.dispatchCommand(console, "gamerule commandBlockOutput true");
+                    Bukkit.dispatchCommand(console, "effect clear @a");
+                    Bukkit.dispatchCommand(console, "gamerule keepInventory false");
+                    Bukkit.dispatchCommand(console, "gamerule doWeatherCycle true");
+                });
+
+                dispatch.start();
 
                 return;
             }
@@ -342,6 +395,10 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
             isDone = new HashMap<>();
 
             timerTask = new TimerTask(this);
+
+            if (isOvertime){
+                timerTask.changeTime(COMPLETED_ROUNDS < 12 ? (6 - (COMPLETED_ROUNDS-6)) : 1);
+            }
 
             RandomItemAssigning();
 
@@ -412,8 +469,20 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
             playersGoals.put(player,goal);
             isDone.put(player, false);
 
-            player.sendMessage(ChatColor.YELLOW + "Item to obtain is -> " + playersGoals.get(player));
-            player.sendTitle(ChatColor.WHITE + "" + playersGoals.get(player),ChatColor.YELLOW + "is the Item to obtain!",5,60,15);
+            Thread runnable = new Thread(() -> {
+                try {
+
+                    if (isOvertime) {
+                        Thread.sleep(5000);
+                    }
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                player.sendMessage(ChatColor.YELLOW + "Item to obtain is -> " + playersGoals.get(player));
+                player.sendTitle(ChatColor.WHITE + "" + playersGoals.get(player),ChatColor.YELLOW + "is the Item to obtain!",5,60,15);
+            });
+            runnable.start();
         }
     }
     private static int indexToChooseItemFrom(){
@@ -429,7 +498,8 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
             case 3: return randomNumber > 80 ? 1 : 0;
             case 4: return randomNumber > 70 ? randomNumber > 95 ? 2 : 1 : 0;
             case 5: return randomNumber > 60 ? randomNumber > 90 ? 2 : 1 : 0;
-            default: return randomNumber > 50 ? randomNumber > 85 ? 2 : 1 : 0;
+            case 6: return randomNumber > 50 ? randomNumber > 85 ? 2 : 1 : 0;
+            default: return randomNumber > 20 ? randomNumber > 75 ? 2 : 1 : 0; //overtime rounds
         }
     }
     public void restart(){
