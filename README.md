@@ -1,5 +1,5 @@
 # BlockShufflePlugin
-custom minecraft plugin written in java using spigot and maven
+custom minecraft (1.18.2 but can be used in newer versions) plugin written in java using spigot and maven
 
 It's a game you can play alone or with friends! The goal is to find as fast as you can item/block assigned to you before time runs out!
 The sooner you collect your block, the better you score! 
