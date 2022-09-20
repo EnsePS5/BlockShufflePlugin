@@ -8,9 +8,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-
-
 public class TimerTask extends Thread  {
 
     BlockShufflePlugin blockShufflePlugin;
@@ -34,13 +31,21 @@ public class TimerTask extends Thread  {
             int minutes = timet/60;
             int seconds = timet%60;
 
+                    if (blockShufflePlugin.currentPlayers.isEmpty()){
+                       // blockShufflePlugin.currentPlayers.addAll(blockShufflePlugin.getServer().getOnlinePlayers());
+                        System.out.println("game terminated due to lack of players");
+                        return;
+                    }
+
             for (Player player : blockShufflePlugin.currentPlayers){
                 if (minutes >= 3) {
                     player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.GREEN + "" + minutes + " : " + seconds));
-                }else if (minutes >= 1)
+                }else if (minutes >= 1) {
                     player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + "" + minutes + " : " + seconds));
-                else if (minutes == 0 && seconds > 10)
+                }
+                else if (minutes == 0 && seconds > 10) {
                     player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.RED + "" + minutes + " : " + seconds));
+                }
                 else if (seconds <= 10 && seconds >= 0){
                     for (Player player1 : blockShufflePlugin.currentPlayers){
                         player1.sendTitle((ChatColor.DARK_RED + "" + seconds), null,1,18,1);
@@ -55,10 +60,6 @@ public class TimerTask extends Thread  {
                 delay = delay - 1000;
 
                 if (minutes == 0 && seconds == 0) {
-
-                    if (blockShufflePlugin.currentPlayers.isEmpty()){
-                        blockShufflePlugin.currentPlayers.addAll(blockShufflePlugin.getServer().getOnlinePlayers());
-                    }
 
                     Bukkit.broadcastMessage(ChatColor.DARK_RED + "" + ChatColor.BOLD + "" + ChatColor.ITALIC + "Time's up!");
                     System.out.println("tutaj nic");
@@ -76,8 +77,8 @@ public class TimerTask extends Thread  {
                             blockShufflePlugin.playersPoints.put(player, -1);
                             blockShufflePlugin.playersScore.get(player).setScore(blockShufflePlugin.playersScore.get(player).getScore() - 1);
 
-                            //To make obtaining item after time impossible
-                            blockShufflePlugin.isDone.clear();
+                            //To make obtaining item after time impossible //TODO MAKE ISDONE LCEAR AFTER TIMES RUNS OUT
+                            //blockShufflePlugin.isDone.clear();
                         }
                     }
 

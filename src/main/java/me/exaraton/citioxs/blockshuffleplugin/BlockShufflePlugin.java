@@ -139,13 +139,14 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
                 Material.HONEYCOMB,Material.FLETCHING_TABLE,Material.SMITHING_TABLE,
                 Material.WHITE_BED,Material.BLACK_BED,Material.BLUE_BED,Material.BROWN_BED,Material.CYAN_BED,Material.GRAY_BED,Material.GREEN_BED,//Beds
                 Material.LIGHT_BLUE_BED,Material.LIGHT_GRAY_BED,Material.LIME_BED,Material.MAGENTA_BED,Material.ORANGE_BED,Material.PINK_BED,
-                Material.PURPLE_BED,Material.RED_BED,Material.YELLOW_BED
+                Material.PURPLE_BED,Material.RED_BED,Material.YELLOW_BED,
+                Material.DARK_OAK_LEAVES,Material.OAK_LEAVES,Material.BIRCH_LEAVES,Material.JUNGLE_LEAVES,Material.SPRUCE_LEAVES,Material.ACACIA_LEAVES,//LEAVES
+                Material.VINE,Material.MOSSY_COBBLESTONE,Material.MOSSY_STONE_BRICKS,Material.GRINDSTONE
         );
 
         List<Material> tierIII = Arrays.asList(Material.OBSIDIAN,Material.NETHERRACK, Material.SOUL_SAND,Material.SOUL_SOIL,Material.BONE_BLOCK,//Nether Blocks
                 Material.GOLD_BLOCK,Material.ANVIL,Material.BLAZE_POWDER,Material.BLAZE_ROD,Material.QUARTZ,Material.GLOWSTONE,
                 Material.BASALT, Material.BLACKSTONE,
-                Material.DARK_OAK_LEAVES,Material.OAK_LEAVES,Material.BIRCH_LEAVES,Material.JUNGLE_LEAVES,Material.SPRUCE_LEAVES,Material.ACACIA_LEAVES,//LEAVES
                 Material.ENCHANTED_BOOK,Material.CANDLE,Material.SLIME_BALL,Material.GOLDEN_APPLE,Material.FERMENTED_SPIDER_EYE,                //Strange ones
                 Material.HOPPER_MINECART,Material.JUKEBOX,Material.PISTON,
                 Material.GOLDEN_CHESTPLATE,Material.GOLDEN_LEGGINGS,Material.GOLDEN_BOOTS,Material.GOLDEN_HELMET,Material.GOLD_BLOCK);          //Gold armor
@@ -156,6 +157,7 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
         System.out.println("added Items - tierI :\n" + tierI + "\nTierII : " + tierII + "\nTierIII : " + tierIII);
         System.out.println("Currently added: " + allPossibleItems.size());
+
         //REJERSTRACJA KOMEND I EVENTOW
         getServer().getPluginManager().registerEvents(this,this);
         Objects.requireNonNull(this.getCommand("runBS")).setExecutor(new CommandRunBS(this));
@@ -166,15 +168,14 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
         System.out.println("Added FBP");
 
         //SCOREBOARD
-
         scoreboardManager = Bukkit.getScoreboardManager();
 
     }
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
 
+        // Plugin shutdown logic
         System.out.println(BlockShufflePlugin.class.getName() + " shutdown");
     }
 
@@ -196,23 +197,48 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
         //When (new player/player who left game while playing) joins game while it is on
         if (!HAS_GAME_ENDED && !currentPlayers.isEmpty() && timerTask.isRunning) {
-            hasSomeoneDied.put(playerJoinEvent.getPlayer(), false);
-            playerJoinEvent.getPlayer().setScoreboard(scoreboard);
 
+            for (Player player : currentPlayers){
+                if (player.getDisplayName().equals(playerJoinEvent.getPlayer().getDisplayName())){
+
+                    int tempPlayerPoint = playersPoints.get(player);
+                    playersPoints.remove(player);
+                    playersPoints.put(playerJoinEvent.getPlayer(),tempPlayerPoint);
+
+                    Score tempPlayerScore = playersScore.get(player);
+                    playersScore.remove(player);
+                    playersScore.put(playerJoinEvent.getPlayer(),tempPlayerScore);
+
+                    Material tempMaterial = playersGoals.get(player);
+                    playersGoals.remove(player);
+                    playersGoals.put(playerJoinEvent.getPlayer(),tempMaterial);
+
+                    boolean tempBool = isDone.get(player);
+                    isDone.remove(player);
+                    isDone.put(playerJoinEvent.getPlayer(),tempBool);
+
+                    currentPlayers.remove(player);
+                    currentPlayers.add(playerJoinEvent.getPlayer());
+
+                    hasSomeoneDied.remove(player);
+                    hasSomeoneDied.put(playerJoinEvent.getPlayer(),false);
+                }
+            }
+
+            playerJoinEvent.getPlayer().setScoreboard(scoreboard);
             playerJoinEvent.getPlayer().sendMessage(ChatColor.LIGHT_PURPLE + "The game is on! You will join next round!");
+
         }
 
-
-
     }
-
+    //TODO DONT GIVE NIGHTVISON AFTER THE GAME
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent playerQuitEvent){
 
         //When player leaves server
         playerQuitEvent.setQuitMessage(ChatColor.DARK_RED + "" + ChatColor.ITALIC + playerQuitEvent.getPlayer().getDisplayName() + " left" );
-        currentPlayers.remove(playerQuitEvent.getPlayer());
-        isDone.put(playerQuitEvent.getPlayer(),true);
+        //currentPlayers.remove(playerQuitEvent.getPlayer());
+        //isDone.put(playerQuitEvent.getPlayer(),true);
     }
 
     @EventHandler
@@ -227,7 +253,7 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
     public void onPlayerDeath(PlayerDeathEvent playerDeathEvent){
         hasSomeoneDied.put(playerDeathEvent.getEntity().getPlayer(), true);
     }
-    //TODO LOGUJESZ SIE JAKO INNY GRACZ, DODAJ I USUN CZY LOGOWANIU DO POINETROW I MAP
+    //TODO LOGUJESZ SIE JAKO INNY GRACZ, DODAJ I USUN CZY LOGOWANIU DO POINETROW I MAP (Powinno działać) DOPISAC DO ISDONE
     @EventHandler
     public void pickUpItem(PlayerPickupItemEvent playerPickupItemEvent){
 
@@ -361,15 +387,11 @@ public final class BlockShufflePlugin extends JavaPlugin implements Listener {
 
                 HAS_GAME_ENDED = true;
 
-                Thread dispatch = new Thread(()-> {
-                    Bukkit.dispatchCommand(console, "gamerule logAdminCommands true");
-                    Bukkit.dispatchCommand(console, "gamerule commandBlockOutput true");
-                    Bukkit.dispatchCommand(console, "effect clear @a");
-                    Bukkit.dispatchCommand(console, "gamerule keepInventory false");
-                    Bukkit.dispatchCommand(console, "gamerule doWeatherCycle true");
-                });
-
-                dispatch.start();
+                Bukkit.dispatchCommand(console, "gamerule logAdminCommands true");
+                Bukkit.dispatchCommand(console, "gamerule commandBlockOutput true");
+                Bukkit.dispatchCommand(console, "effect clear @a");
+                Bukkit.dispatchCommand(console, "gamerule keepInventory false");
+                Bukkit.dispatchCommand(console, "gamerule doWeatherCycle true");
 
                 return;
             }

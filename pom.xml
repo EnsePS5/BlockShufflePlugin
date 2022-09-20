@@ -6,7 +6,7 @@
 
     <groupId>me.exaraton.citioxs</groupId>
     <artifactId>BlockShufflePlugin</artifactId>
-    <version>1.10.3.1_OVERTIME</version>
+    <version>1.10.3.4_OVERTIME_EXPERIMENTALQUITING</version>
     <packaging>jar</packaging>
 
     <name>BlockShufflePlugin</name>

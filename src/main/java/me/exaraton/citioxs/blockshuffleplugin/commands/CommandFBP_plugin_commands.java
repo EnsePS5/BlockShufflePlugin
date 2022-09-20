@@ -4,11 +4,9 @@ import me.exaraton.citioxs.blockshuffleplugin.BlockShufflePlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.block.Biome;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class CommandFBP_plugin_commands implements CommandExecutor{
@@ -77,7 +75,7 @@ public class CommandFBP_plugin_commands implements CommandExecutor{
                 ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
 
                 String biomes;
-                if (args[1] != null)
+                if (args.length == 2)
                     biomes = args[1];
                 else {
                     sender.sendMessage(ChatColor.RED + "<!> given biome is invalid");
