@@ -10,3 +10,5 @@ type '/fbp_plugin_commanmds' in game chat to get more info about available comma
 Have a good time!
 
  ~Ense
+ 
+ PS: Keep in mind I made it for fun and surly is not perfectly optimized and may contains some bugs :)
